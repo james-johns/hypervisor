@@ -1,0 +1,6 @@
+
+
+
+start:
+	b start
+	
