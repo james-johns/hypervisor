@@ -1,6 +1,6 @@
 
 
-
-start:
-	b start
+.global _start
+_start:
+	b _start
 	
