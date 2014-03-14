@@ -22,7 +22,7 @@ include arch/$(ARCH)/Makefile
 all: hypervisor
 
 clean:
-	$(@)rm $(hypervisor-obj) hypervisor
+	$(Q)rm $(hypervisor-obj) hypervisor
 
 distclean:
 
@@ -39,5 +39,5 @@ hypervisor: $(hypervisor-obj)
 	$(Q)$(AS) $(ASFLAGS) -o $@ $<
 
 .c.o:
-	echo " [CC] $@"
+	$(Q)echo " [CC] $@"
 	$(CC) $(CFLAGS) -c $@ $<
