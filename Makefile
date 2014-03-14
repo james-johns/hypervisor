@@ -22,7 +22,10 @@ include arch/$(ARCH)/Makefile
 all: hypervisor
 
 clean:
-	$(Q)rm $(hypervisor-obj) hypervisor
+	$(Q)echo " [RM] *.o"
+	$(Q)rm $(hypervisor-obj) 
+	$(Q)echo " [RM] hypervisor"
+	$(Q)rm hypervisor
 
 distclean:
 
