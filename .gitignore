@@ -5,6 +5,7 @@
 
 # build files
 *.o
+hypervisor
 
 # backup files
 *~
