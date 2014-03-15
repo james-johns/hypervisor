@@ -1,6 +1,21 @@
-
-
+.arm
+.section ".text"
 .global _start
 _start:
-	b _start
-	
+	mov r0, #'A'
+	bl putc
+1:	
+	b 1b
+
+.equ UART_BASE, 0x101f1000
+.equ UART_TX,	0x00
+# putc
+# IN: r0 - character to print
+# OUT:
+# SMASHED: r1
+#
+putc:
+	ldr r1, =UART_BASE
+	strb r0, [r1, #UART_TX]
+	mov pc, lr
+
