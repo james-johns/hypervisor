@@ -1,4 +1,13 @@
-
+################################################################################
+# Makefile
+#
+# Environment variables:
+#     CROSS_COMPILE - string to be prepended to toolchain used to build
+#
+#     ARCH - architecture to build for. Used to include architecture specific 
+#		code from arch/ subdirectory.
+#
+################################################################################
 CROSS_COMPILE?=
 
 AS:=$(CROSS_COMPILE)as
@@ -16,6 +25,9 @@ hypervisor-obj:=
 ARCH?=arm
 include arch/$(ARCH)/Makefile
 
+###
+# Generic build targets
+###
 
 .PHONY: all clean distclean hypervisor
 
@@ -30,10 +42,19 @@ clean:
 distclean:
 
 
+###
+# Specfic build targets
+###
+
 hypervisor: $(hypervisor-obj)
 	$(Q)echo " [LD] $@"
 	$(Q)$(LD) $(LDFLAGS) -T arch/$(ARCH)/link.lds -o $@ $(hypervisor-obj)
 
+
+
+###
+# Build templates
+###
 .SUFFIXES:
 .SUFFIXES: .c .o .S
 
