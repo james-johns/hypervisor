@@ -3,11 +3,11 @@
 .extern hyp_main
 .global _start
 _start:
+	ldr sp, =boot_stack
 	mov r0, #'A'
 	bl putc
 	b hyp_main
 1:
-	wfe
 	b 1b
 
 .equ UART_BASE, 0x01c28000
@@ -22,3 +22,7 @@ putc:
 	strb r0, [r1, #UART_TX]
 	mov pc, lr
 
+.comm boot_stack, 0x1000
+
+
+	
