@@ -1,7 +1,7 @@
 ENTRY(_start)
 SECTIONS
 {
- . = 0x10000;
+ . = 0x40000000;
  .head . : { arch/arm/head.o(.text) }
  .text : { *(.text) }
  .data : { *(.data) }
