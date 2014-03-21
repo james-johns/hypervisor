@@ -15,7 +15,7 @@ hypervisor-obj:=
 # include arch specific code
 ARCH?=arm
 include arch/$(ARCH)/Makefile
-
+include main/Makefile
 
 .PHONY: all clean distclean hypervisor
 
@@ -43,4 +43,4 @@ hypervisor: $(hypervisor-obj)
 
 .c.o:
 	$(Q)echo " [CC] $@"
-	$(CC) $(CFLAGS) -c $@ $<
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
