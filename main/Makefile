@@ -2,4 +2,4 @@
 
 
 
-hypervisor-obj+=main/main.o
+hypervisor-obj+=main/main.o main/printk.o
