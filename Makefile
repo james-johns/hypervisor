@@ -32,7 +32,7 @@ distclean:
 
 hypervisor: $(hypervisor-obj)
 	$(Q)echo " [LD] $@"
-	$(Q)$(LD) $(LDFLAGS) -o $@ $(hypervisor-obj)
+	$(Q)$(LD) $(LDFLAGS) -T arch/$(ARCH)/link.lds -o $@ $(hypervisor-obj)
 
 .SUFFIXES:
 .SUFFIXES: .c .o .S
