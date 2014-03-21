@@ -5,6 +5,8 @@ AS:=$(CROSS_COMPILE)as
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
+CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles
+
 Q:=@-
 
 .SUFFIXES:
