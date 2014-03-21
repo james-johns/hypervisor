@@ -6,7 +6,7 @@ _start:
 	ldr sp, =boot_stack
 	mov r0, #'A'
 	bl putc
-	b hyp_main
+	bl hyp_main
 1:
 	b 1b
 
