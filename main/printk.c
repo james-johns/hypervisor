@@ -6,8 +6,6 @@
 
 #define STATUS_Tx_EMPTY (1 << 5)
 
-const char hex_data[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 void print_hex(unsigned int value);
 void print_str(const char *str);
 void putc(char c);
@@ -22,9 +20,14 @@ void print_str(const char *str) {
 
 void print_hex(unsigned int value) {
   signed int i;
+  unsigned char off;
   print_str("0x");
   for (i = 7; i >= 0; i--) {
-    putc(*(((value >> (i * 4)) & 0x0F) + &hex_data[0]));
+    off = (value >> (i * 4)) & 0x0F;
+    if (off < 10)
+      putc('0' + off);
+    else
+      putc('A' + (off -10));
   }
 }
 
