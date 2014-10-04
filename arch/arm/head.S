@@ -4,6 +4,7 @@
 .global _start
 _start:
 	ldr sp, =boot_stack
+	bl init_uart
 	mov r0, #'A'
 	bl putc
 	bl hyp_main
@@ -12,6 +13,27 @@ _start:
 
 .equ UART_BASE, 0x01c28000
 .equ UART_TX,	0x00
+.equ UART_IER,  0x04
+.equ UART_FCR,  0x08
+.equ UART_LCR,  0x0C
+.equ UART_MCR,  0x10
+
+# init_uart
+# IN:
+# OUT:
+# SMASHED: r0, r1, r2
+#
+# Initialise UART0 to 8n1 with interrupts and fifos disabled
+#
+init_uart:
+	ldr r0, =UART_BASE
+	mov r1, #0x03
+	mov r2, #0x00
+	strb r1, [r0, #UART_LCR]
+	strb r2, [r0, #UART_IER]
+	strb r2, [r0, #UART_FCR]
+	strb r1, [r0, #UART_MCR]
+	mov pc, lr
 # putc
 # IN: r0 - character to print
 # OUT:
