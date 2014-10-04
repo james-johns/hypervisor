@@ -1,12 +1,33 @@
 .arm
 .section ".text"
 .extern hyp_main
+.extern print_hex
+.extern print_str
 .global _start
 _start:
 	ldr sp, =boot_stack
 	bl init_uart
 	mov r0, #'A'
 	bl putc
+	mov r0, #'\r'
+	bl putc
+	mov r0, #'\n'
+	bl putc
+check_mode:
+	mrs r0, cpsr
+	bl print_hex
+# read SCR to find whether we are in secure mode
+	mrc p15, 0, r1, c1, c1, 0
+	and r1, r1, #0x01
+	tst r1, #0x01
+	bne non_secure
+	ldr r0, =secure_mode_msg
+	bl print_str
+	b _start_main
+non_secure:
+	ldr r0, =nonsecure_mode_msg
+	bl print_str
+_start_main:
 	bl hyp_main
 1:
 	wfe
@@ -44,6 +65,9 @@ putc:
 	ldr r1, =UART_BASE
 	strb r0, [r1, #UART_TX]
 	mov pc, lr
+
+secure_mode_msg:	.asciz "Secure mode active\r\n"
+nonsecure_mode_msg:	.asciz "non-Secure mode active\r\n"
 
 .comm boot_stack, 0x1000
 
