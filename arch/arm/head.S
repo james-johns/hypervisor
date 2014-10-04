@@ -9,6 +9,7 @@ _start:
 	bl putc
 	bl hyp_main
 1:
+	wfe
 	b 1b
 
 .equ UART_BASE, 0x01c28000
