@@ -1,30 +1,50 @@
-.arm
-.section ".text"
+
 .extern hyp_main
-.global _start
+.extern print_str
+/* easy use print macro. requires usable stack,
+	clobers r0 */
+#ifndef PRINT
+#define PRINT(_s) \
+	ldr r0, =100f; \
+	bl print_str; \
+	b 101f; \
+100:	.asciz _s; \
+	.align 2; \
+101:	
+#endif
+
+#ifndef GLOBAL
+#define GLOBAL(sym) \
+.global sym
+#endif
+	
+GLOBAL(_start)
 _start:
 	ldr sp, =boot_stack
 	bl init_uart
 	mov r0, #'A'
 	bl putc
+	PRINT("pre-processor macros work")
 	bl hyp_main
 1:
 	b 1b
 
-.equ UART_BASE, 0x01c28000
-.equ UART_TX,	0x00
-.equ UART_IER,  0x04
-.equ UART_FCR,  0x08
-.equ UART_LCR,  0x0C
-.equ UART_MCR,  0x10
+#define TEST_VAR 0x01
+#warning "pre-processor working"
+#define UART_BASE 	0x01c28000
+#define UART_TX		0x00
+#define	UART_IER	0x04
+#define UART_FCR	0x08
+#define UART_LCR	0x0C
+#define UART_MCR	0x10
 
-# init_uart
-# IN:
-# OUT:
-# SMASHED: r0, r1, r2
-#
-# Initialise UART0 to 8n1 with interrupts and fifos disabled
-#
+/* init_uart
+ * IN:
+ * OUT:
+ * SMASHED: r0, r1, r2
+ *
+ * Initialise UART0 to 8n1 with interrupts and fifos disabled
+ */
 init_uart:
 	ldr r0, =UART_BASE
 	mov r1, #0x03
@@ -34,11 +54,11 @@ init_uart:
 	strb r2, [r0, #UART_FCR]
 	strb r1, [r0, #UART_MCR]
 	mov pc, lr
-# putc
-# IN: r0 - character to print
-# OUT:
-# SMASHED: r1
-#
+/* putc
+ * IN: r0 - character to print
+ * OUT:
+ * SMASHED: r1
+ */
 putc:
 	ldr r1, =UART_BASE
 	strb r0, [r1, #UART_TX]

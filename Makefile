@@ -14,6 +14,7 @@ AS:=$(CROSS_COMPILE)as
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
+ASFLAGS+=-c
 CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -g -I./include
 
 Q:=@-
@@ -59,7 +60,7 @@ hypervisor: $(hypervisor-obj)
 
 .S.o:
 	$(Q)echo " [AS] $@"
-	$(Q)$(AS) $(ASFLAGS) -o $@ $<
+	$(Q)$(CC) $(ASFLAGS) -o $@ $<
 
 .c.o:
 	$(Q)echo " [CC] $@"
