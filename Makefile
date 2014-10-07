@@ -14,7 +14,7 @@ AS:=$(CROSS_COMPILE)as
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
-ASFLAGS+=-c
+ASFLAGS+=-c -I./include -D__ASSEMBLY__
 CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -g -I./include
 
 Q:=@-

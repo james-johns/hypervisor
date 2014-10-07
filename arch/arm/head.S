@@ -1,4 +1,6 @@
 
+
+#include <asm/assembler.h>
 .extern hyp_main
 .extern print_hex
 .extern print_str
@@ -14,11 +16,6 @@
 101:	
 #endif
 
-#ifndef GLOBAL
-#define GLOBAL(sym) \
-.global sym
-#endif
-	
 GLOBAL(_start)
 _start:
 	ldr sp, =boot_stack
