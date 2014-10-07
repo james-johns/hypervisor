@@ -1,9 +1,9 @@
 
 
 #include <asm/assembler.h>
+#include <printh.h>
+	
 .extern hyp_main
-.extern print_hex
-.extern print_str
 /* easy use print macro. requires usable stack,
 	clobers r0 */
 #ifndef PRINT
@@ -45,7 +45,6 @@ _start_main:
 	b 1b
 
 #define TEST_VAR 0x01
-#warning "pre-processor working"
 #define UART_BASE 	0x01c28000
 #define UART_TX		0x00
 #define	UART_IER	0x04

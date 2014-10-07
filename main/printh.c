@@ -1,14 +1,12 @@
 
 
+#include <printh.h>
+
 #define UART_BASE ((unsigned char *)0x01C28000)
 #define UART_TX 0x00
 #define UART_LINE_STATUS 0x14 
 
 #define STATUS_Tx_EMPTY (1 << 5)
-
-void print_hex(unsigned int value);
-void print_str(const char *str);
-void putc(char c);
 
 
 void print_str(const char *str) {
