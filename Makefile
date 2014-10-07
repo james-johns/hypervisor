@@ -14,6 +14,8 @@ AS:=$(CROSS_COMPILE)as
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
+CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -g -I./include
+
 Q:=@-
 
 .SUFFIXES:
@@ -24,10 +26,7 @@ hypervisor-obj:=
 # include arch specific code
 ARCH?=arm
 include arch/$(ARCH)/Makefile
-
-###
-# Generic build targets
-###
+include main/Makefile
 
 .PHONY: all clean distclean hypervisor
 
@@ -64,4 +63,4 @@ hypervisor: $(hypervisor-obj)
 
 .c.o:
 	$(Q)echo " [CC] $@"
-	$(CC) $(CFLAGS) -c $@ $<
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
