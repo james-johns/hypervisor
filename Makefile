@@ -37,9 +37,9 @@ clean:
 	$(Q)echo " [RM] *.o"
 	$(Q)rm $(hypervisor-obj) 
 	$(Q)echo " [RM] hypervisor"
-	$(Q)rm hypervisor
+	$(Q)rm hypervisor hypervisor.bin uImage
 
-distclean:
+distclean: clean
 
 
 ###
@@ -50,6 +50,9 @@ hypervisor: $(hypervisor-obj)
 	$(Q)echo " [LD] $@"
 	$(Q)$(LD) $(LDFLAGS) -T arch/$(ARCH)/link.lds -o $@ $(hypervisor-obj)
 
+uImage: hypervisor
+	$(Q)$(CROSS_COMPILE)objcopy -O binary hypervisor hypervisor.bin
+	$(Q)mkimage -A $(ARCH) -T kernel -C none -a 0x40008000 -d hypervisor.bin uImage
 
 
 ###
