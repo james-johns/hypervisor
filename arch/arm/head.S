@@ -28,21 +28,19 @@ _start:
 	bl putc
 check_mode:
 	mrs r0, cpsr
-	bl print_hex
-# read SCR to find whether we are in secure mode
-	mrc p15, 0, r1, c1, c1, 0
-	and r1, r1, #0x01
-	tst r1, #0x01
-	bne non_secure
-	PRINT("Secure mode active\r\n")
+	and r0, r0, #0x1F
+	cmp r0, #0x1A
+	bne non_hyp
+	PRINT("Hyp mode active\r\n")
 	b _start_main
-non_secure:
-	PRINT("non-Secure mode active\r\n")
+non_hyp:
+	PRINT("Hyp mode not active. ~~~ Halting! ~~~\r\n")
+	b halt
 _start_main:
 	bl hyp_main
-1:
+halt:
 	wfe
-	b 1b
+	b halt
 
 #define TEST_VAR 0x01
 #define UART_BASE 	0x01c28000
