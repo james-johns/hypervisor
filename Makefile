@@ -14,7 +14,7 @@ AS:=$(CROSS_COMPILE)as
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
-ASFLAGS+=-c -I./include -D__ASSEMBLY__
+ASFLAGS+=-c -I./include -D__ASSEMBLY__ -mcpu=cortex-a7
 CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -g -I./include
 
 Q:=@-

@@ -1,5 +1,5 @@
 
-
+.arm
 #include <asm/assembler.h>
 #include <printh.h>
 	
@@ -32,15 +32,54 @@ check_mode:
 	cmp r0, #0x1A
 	bne non_hyp
 	PRINT("Hyp mode active\r\n")
+
+	ldr r0, =hyp_vectors
+	mcr p15, 4, r0, c12, c0, 0 /* set HVBAR */
+
 	b _start_main
 non_hyp:
 	PRINT("Hyp mode not active. ~~~ Halting! ~~~\r\n")
 	b halt
+
 _start_main:
 	bl hyp_main
+
 halt:
 	wfe
 	b halt
+
+.align 5
+hyp_vectors:
+	.word 0
+	b trap_undefined_instruction
+	b trap_supervisor_call
+	b trap_prefetch_abort
+	b trap_data_abort
+	b trap_hyp_call
+	b trap_irq
+	b trap_fiq
+
+trap_undefined_instruction:
+	PRINT("Undefined instruction in hyp mode")
+	eret
+trap_supervisor_call:
+	PRINT("Supervisor call trapped in hyp mode")
+	eret
+trap_prefetch_abort:
+	PRINT("Prefetch abort in hyp mode")
+	eret
+trap_data_abort:
+	PRINT("Data abort in hyp mode")
+	eret
+trap_hyp_call:
+	PRINT("Hyp call handler")
+	eret
+trap_irq:
+	PRINT("IRQ trapped in hyp mode")
+	eret
+trap_fiq:
+	PRINT("FIQ trapped in hyp mode")
+	eret
 
 #define TEST_VAR 0x01
 #define UART_BASE 	0x01c28000
