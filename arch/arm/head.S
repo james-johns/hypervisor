@@ -18,6 +18,7 @@
 
 GLOBAL(_start)
 _start:
+	cpsid aif
 	ldr sp, =boot_stack
 	bl init_uart
 	mov r0, #'A'
@@ -33,9 +34,6 @@ check_mode:
 	bne non_hyp
 	PRINT("Hyp mode active\r\n")
 
-	ldr r0, =hyp_vectors
-	mcr p15, 4, r0, c12, c0, 0 /* set HVBAR */
-
 	b _start_main
 non_hyp:
 	PRINT("Hyp mode not active. ~~~ Halting! ~~~\r\n")
@@ -47,6 +45,14 @@ _start_main:
 halt:
 	wfe
 	b halt
+	
+GLOBAL(install_hyp_vectors)
+install_hyp_vectors:
+	push {lr}
+	ldr r0, =hyp_vectors
+	mcr p15, 4, r0, c12, c0, 0 /* set HVBAR */
+	pop {lr}
+	bx lr
 
 .align 5
 hyp_vectors:
@@ -59,26 +65,41 @@ hyp_vectors:
 	b trap_irq
 	b trap_fiq
 
+.extern handle_trap_undefined_instruction
 trap_undefined_instruction:
-	PRINT("Undefined instruction in hyp mode")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_undefined_instruction
 	eret
 trap_supervisor_call:
-	PRINT("Supervisor call trapped in hyp mode")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_supervisor_call
 	eret
 trap_prefetch_abort:
-	PRINT("Prefetch abort in hyp mode")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_prefetch_abort
 	eret
 trap_data_abort:
-	PRINT("Data abort in hyp mode")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_data_abort
 	eret
 trap_hyp_call:
-	PRINT("Hyp call handler")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_hyp_call
 	eret
 trap_irq:
-	PRINT("IRQ trapped in hyp mode")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_irq
 	eret
 trap_fiq:
-	PRINT("FIQ trapped in hyp mode")
+	SAVE_REGS
+	mov r0, sp
+	bl handle_trap_fiq
 	eret
 
 #define TEST_VAR 0x01
@@ -88,6 +109,7 @@ trap_fiq:
 #define UART_FCR	0x08
 #define UART_LCR	0x0C
 #define UART_MCR	0x10
+
 
 /* init_uart
  * IN:

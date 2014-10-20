@@ -13,6 +13,13 @@
 .global sym
 #endif
 
+#ifndef SAVE_REGS
+#define SAVE_REGS \
+  sub sp, #8;	  \
+  push {r0-r12};  \
+  mrs r11, ELR_hyp;				\
+  str r11, [sp, #56] 
+#endif
 
 
 #endif

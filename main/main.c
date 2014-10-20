@@ -1,9 +1,18 @@
 
-extern void print_str(const char *str);
-extern void print_hex(const int hex);
+#include <printh.h>
+
+void init_irqs();
+void init_timer();
 
 void hyp_main() {
+
   print_str("Starting hyp main\r\n");
-  print_hex(0x12345678);
-  while(1);
+
+  init_irqs();
+  init_timer();
+
+  print_str("Halting!");
+  while(1) {
+    asm volatile("wfe"::);
+  }
 }
