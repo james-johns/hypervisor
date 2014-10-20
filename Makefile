@@ -15,7 +15,7 @@ CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
 ASFLAGS+=-c -I./include -D__ASSEMBLY__ -mcpu=cortex-a7
-CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -g -I./include
+CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -mcpu=cortex-a7 -g -I./include
 
 Q:=@-
 
@@ -31,7 +31,9 @@ include main/Makefile
 
 .PHONY: all clean distclean hypervisor
 
-all: hypervisor
+default: uImage
+
+all: hypervisor uImage
 
 clean:
 	$(Q)echo " [RM] *.o"
