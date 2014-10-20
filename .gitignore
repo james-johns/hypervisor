@@ -6,6 +6,8 @@
 # build files
 *.o
 hypervisor
+*.bin
+uImage
 
 # backup files
 *~
