@@ -77,6 +77,9 @@ void handle_trap_hyp_call(struct cpu_regs *regs) {
 
 void handle_trap_irq(struct cpu_regs *regs) {
   print_str("\r\nIRQ Trap");
+  unsigned int interrupt = GICC[GICC_IAR];
+  print_hex(interrupt);
+  GICC[GICC_EOIR] = interrupt;
   print_regs(regs);
 }
 

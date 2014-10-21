@@ -40,6 +40,9 @@ non_hyp:
 	b halt
 
 _start_main:
+	cpsie aif
+	mrs r0, cpsr
+	bl print_hex
 	bl hyp_main
 
 halt:
@@ -67,36 +70,45 @@ hyp_vectors:
 
 .extern handle_trap_undefined_instruction
 trap_undefined_instruction:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_undefined_instruction
+	add sp, #60
 	eret
 trap_supervisor_call:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_supervisor_call
+	add sp, #60
 	eret
 trap_prefetch_abort:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_prefetch_abort
 	eret
 trap_data_abort:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_data_abort
 	eret
 trap_hyp_call:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_hyp_call
 	eret
 trap_irq:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_irq
 	eret
 trap_fiq:
+	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_fiq
