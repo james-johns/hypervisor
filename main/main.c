@@ -12,10 +12,10 @@ void hyp_main() {
 
   init_irqs();
   init_timer();
-
   GICD[GICD_SGIR] = 0x02008005;
   
-  print_str("Halting!");
+
+  print_str("\r\nHalting!");
   while(1) {
     //    asm volatile("wfe"::);
   }

@@ -48,6 +48,7 @@ void print_regs(struct cpu_regs *regs) {
   print_str("\r\nR12: "); print_hex(regs->r12);
   print_str("\r\nPC : "); print_hex(regs->pc);
   print_str("\r\nPSR: "); print_hex(regs->cpsr);
+  print_str("\r\n\r\n");
 }
 
 void handle_trap_undefined_instruction(struct cpu_regs *regs) {
