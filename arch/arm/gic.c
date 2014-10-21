@@ -14,7 +14,7 @@ void init_gic_distributor() {
     GICD[GICD_ICFGR(i/16)] = 0x0;
   }
   for (i = 32; i < lines; i += 16) {
-    GICD[GICD_ITARGETSR(i/4)] = 0x33333333;
+    GICD[GICD_ITARGETSR(i/4)] = 0x01010101;
   }
   for (i = 32; i < lines; i += 4) {
     GICD[GICD_IPRIORITYR(i/4)] = 0xa0a0a0a0;

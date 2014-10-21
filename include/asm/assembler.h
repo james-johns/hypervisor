@@ -18,10 +18,15 @@
   sub sp, #8;					\
   push {r0-r12};				\
   mrs r11, ELR_hyp;				\
-  str r11, [sp, #56];				\
+  str r11, [sp, #52];				\
   mrs r11, spsr;				\
-  str r11, [sp, #60]
+  str r11, [sp, #56]
 #endif
 
+#ifndef RESTORE_REGS
+#define RESTORE_REGS				\
+  pop {r0-r12};					\
+  add sp, #8
+#endif
 
 #endif
