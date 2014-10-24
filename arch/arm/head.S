@@ -70,49 +70,42 @@ hyp_vectors:
 
 .extern handle_trap_undefined_instruction
 trap_undefined_instruction:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_undefined_instruction
 	RESTORE_REGS
 	eret
 trap_supervisor_call:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_supervisor_call
 	RESTORE_REGS
 	eret
 trap_prefetch_abort:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_prefetch_abort
 	RESTORE_REGS
 	eret
 trap_data_abort:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_data_abort
 	RESTORE_REGS
 	eret
 trap_hyp_call:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_hyp_call
 	RESTORE_REGS
 	eret
 trap_irq:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_irq
 	RESTORE_REGS
 	eret
 trap_fiq:
-	cpsid aif
 	SAVE_REGS
 	mov r0, sp
 	bl handle_trap_fiq
