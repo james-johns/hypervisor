@@ -1,5 +1,5 @@
 
-#define GIC_BASE 0x01c80000
+#include <config.h>
 #include <gic.h>
 #include <printh.h>
 

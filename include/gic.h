@@ -5,7 +5,7 @@
 #define _GIC_H_
 
 #ifndef GIC_BASE
-#error "GIC_BASE must be defined before including gic.h"
+#error "GIC_BASE must be defined before including gic.h, maybe you forgot to include config.h?"
 #endif
 
 #define GICD ((unsigned int *)(GIC_BASE + 0x1000))
