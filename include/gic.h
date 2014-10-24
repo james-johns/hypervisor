@@ -35,8 +35,12 @@
 #define GICC_BPR            2
 #define GICC_IAR            3
 #define GICC_EOIR           4
+#define GICC_DIR            (0x1000/4)
+
 
 void init_gic();
+
+void enable_irq(unsigned int irqn);
 
 #endif
 

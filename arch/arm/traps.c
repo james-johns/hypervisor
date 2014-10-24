@@ -6,6 +6,7 @@
 #include <gic.h>
 
 void install_hyp_vectors();
+void timer_interrupt();
 
 void init_irqs() {
 
@@ -77,11 +78,17 @@ void handle_trap_hyp_call(struct cpu_regs *regs) {
 }
 
 void handle_trap_irq(struct cpu_regs *regs) {
-  print_str("\r\nIRQ Trap");
   unsigned int interrupt = GICC[GICC_IAR];
-  print_hex(interrupt);
-  GICC[GICC_EOIR] = interrupt;
-  print_regs(regs);
+  if (interrupt == 0x38) {
+    timer_interrupt();
+  }
+  else {
+    print_str("\r\nIRQ Trap");
+    print_hex(interrupt);
+    print_regs(regs);
+  }
+  GICC[GICC_DIR] = interrupt; // deactivate interrupt to reset priority
+  GICC[GICC_EOIR] = interrupt;// end of interrupt
 }
 
 void handle_trap_fiq(struct cpu_regs *regs) {

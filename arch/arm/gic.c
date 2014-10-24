@@ -3,6 +3,12 @@
 #include <gic.h>
 #include <printh.h>
 
+void enable_irq(unsigned int irqn) {
+  GICD[GICD_ISENABLER(irqn/32)] = 1 << (irqn % 32);
+  GICD[GICD_ITARGETSR(irqn/4)] |= (0x01 << ((irqn %4)*8));
+  GICD[GICD_IPRIORITYR(irqn/4)] |= (0xa0 << ((irqn %4)*8));
+}
+
 void init_gic_distributor() {
   GICD[GICD_CTLR] = 0x0; // disable GIC
   
