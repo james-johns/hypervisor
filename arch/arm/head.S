@@ -112,6 +112,35 @@ trap_fiq:
 	RESTORE_REGS
 	eret
 
+GLOBAL(setHTTBR)
+setHTTBR:
+	mcrr p15, 4, r0, r1, c2
+	mov pc, lr
+GLOBAL(setMAIR0VAL)
+setMAIR0VAL:
+	mcr p15, 0, r0, c10, c2, 0
+	mcr p15, 4, r0, c10, c2, 0
+	mov pc, lr
+GLOBAL(setMAIR1VAL)
+setMAIR1VAL:
+	mcr p15, 0, r0, c10, c2, 1
+	mcr p15, 4, r0, c10, c2, 1
+	mov pc, lr
+GLOBAL(enableMMU)
+enableMMU:	
+	mov r0, #0
+	orr r0, r0, #0x01 /* T0SZ */
+	orr r0, r0, #0x80000000 /* always 1 */
+	orr r0, r0, #0x3000 /* SH0 */
+	orr r0, r0, #0xC00 /* ORGN0, IRGN0 */
+	mcr p15, 4, r0, c2, c0, 2
+	mrc p15, 4, r0, c1, c0, 0
+	orr r0, r0, #0x03 /* MMU and D-Cache enable */
+	dsb
+	mcr p15, 4, r0, c1, c0, 0
+	isb
+	mov pc, lr
+	
 #define TEST_VAR 0x01
 #define UART_BASE 	0x01c28000
 #define UART_TX		0x00
