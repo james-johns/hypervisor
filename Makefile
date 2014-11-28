@@ -29,7 +29,7 @@ ARCH?=arm
 include arch/$(ARCH)/Makefile
 include main/Makefile
 
-.PHONY: all clean distclean hypervisor
+.PHONY: all clean distclean hypervisor TAGS
 
 default: uImage
 
@@ -43,6 +43,11 @@ clean:
 	$(Q)rm hypervisor hypervisor.bin uImage
 
 distclean: clean
+
+TAGS:
+	$(Q)find . -name '*.c' | etags -
+	$(Q)find . -name '*.h' | etags --append -
+	$(Q)find . -name '*.S' | etags --append -
 
 
 ###
