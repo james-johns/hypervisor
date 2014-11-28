@@ -141,7 +141,6 @@ enableMMU:
 	isb
 	mov pc, lr
 	
-#define TEST_VAR 0x01
 #define UART_BASE 	0x01c28000
 #define UART_TX		0x00
 #define	UART_IER	0x04

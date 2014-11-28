@@ -12,25 +12,31 @@
 #define TIMER2_INTRVL    *(TIMER2_OFF+(0x04/4))
 #define TIMER2_CUR_INTRVL *((unsigned int *)(TIMER2_OFF+(0x08/4)))
 
-void init_timer() {
+void init_timer()
+{
 
-  TIMER2_INTRVL = 0x00004000;
-  TIMER2_CTRL = 0x00000007;
+	TIMER2_INTRVL = 0x00004000;
+	TIMER2_CTRL = 0x00000007;
 
-  TIMER_IRQ_EN = 0x04;
+	TIMER_IRQ_EN = 0x04;
 
-  enable_irq(56);
+	enable_irq(56);
 }
 
-void print_timer_value() {
-  print_str("\r\nTimer value:"); print_hex(TIMER2_CUR_INTRVL);
-  print_str("      Status: "); print_hex(TIMER_IRQ_STATUS);
-  print_str("\r\nTimer IRQ en:"); print_hex(TIMER_IRQ_EN);
+void print_timer_value()
+{
+	print_str("\r\nTimer value:");
+	print_hex(TIMER2_CUR_INTRVL);
+	print_str("      Status: ");
+	print_hex(TIMER_IRQ_STATUS);
+	print_str("\r\nTimer IRQ en:");
+	print_hex(TIMER_IRQ_EN);
 }
 
-void timer_interrupt() {
-  TIMER_IRQ_STATUS |= 0x04;
-  TIMER_IRQ_EN = 0x04;
-  TIMER2_CTRL |= 0x01;
-  print_str("Tick\r\n");
+void timer_interrupt()
+{
+	TIMER_IRQ_STATUS |= 0x04;
+	TIMER_IRQ_EN = 0x04;
+	TIMER2_CTRL |= 0x01;
+	print_str("Tick\r\n");
 }

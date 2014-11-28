@@ -7,17 +7,18 @@
 void init_irqs();
 void init_timer();
 
-void hyp_main() {
+void hyp_main()
+{
 
-  print_str("Starting hyp main\r\n");
+	print_str("Starting hyp main\r\n");
 
-  init_irqs();
-  init_timer();
-  
-  init_mmu();
+	init_irqs();
+	init_timer();
 
-  print_str("\r\nHalting!");
-  while(1) {
-    //    asm volatile("wfe"::);
-  }
+	init_mmu();
+
+	print_str("\r\nHalting!");
+	while (1) {
+		//    asm volatile("wfe"::);
+	}
 }

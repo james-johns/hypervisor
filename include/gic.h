@@ -12,9 +12,9 @@
 #define GICC ((unsigned int *)(GIC_BASE + 0x2000))
 #define GICH ((unsigned int *)(GIC_BASE + 0x4000))
 
-#define GICD_CTLR           0 // 0x00
-#define GICD_TYPER          (0x04/4) // 0x04 / 4
-#define GICD_IIDR           (0x08/4) // 0x08 / 4
+#define GICD_CTLR           0	// 0x00
+#define GICD_TYPER          (0x04/4)	// 0x04 / 4
+#define GICD_IIDR           (0x08/4)	// 0x08 / 4
 #define GICD_IGROUPR(n)     n+(0x80/4)
 #define GICD_ISENABLER(n)   n+(0x100/4)
 #define GICD_ICENABLER(n)   n+(0x180/4)
@@ -26,7 +26,7 @@
 #define GICD_ITARGETSR(n)   n+(0x800/4)
 #define GICD_ICFGR(n)       n+(0xc00/4)
 #define GICD_NSACR(n)       n+(0xe00/4)
-#define GICD_SGIR           (0xf00/4) // 0xf00 / 4
+#define GICD_SGIR           (0xf00/4)	// 0xf00 / 4
 #define GICD_CPENDSGIR(n)   n+(0xf10/4)
 #define GICD_SPENDSGIR(n)   n+(0xf20/4)
 
@@ -43,4 +43,3 @@ void init_gic();
 void enable_irq(unsigned int irqn);
 
 #endif
-
