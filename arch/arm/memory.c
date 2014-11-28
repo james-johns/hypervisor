@@ -22,6 +22,7 @@ void init_mmu() {
   print_hex(sizeof(pageTable));
   unsigned int i;
 
+  /* zero the table */
   for (i = 0; i < LPAE_ENTRIES; i++) {
     pageTable[i].block.type = 0x0;
     pageTable[i].block.outputAddr = 0;
@@ -31,7 +32,21 @@ void init_mmu() {
     pageTable[i].block.zero2 = 0;
   }
 
-  for (i = 0; i < LPAE_ENTRIES; i++) {
+  /* devices */
+  for (i = 0; i < LPAE_ENTRIES/4; i++) {
+    pageTable[i].block.type = 0x1;
+    pageTable[i].block.outputAddr = i*(1<<9);
+    pageTable[i].block.upperBlockAttrs = 0x00;
+    pageTable[i].block.lowerBlockAttrs = 0x39c; // 11 1001 1100
+    pageTable[i].block.zero1 = 0;
+    pageTable[i].block.zero2 = 0;
+    print_str("\r\npageTable entry: ");
+    print_hex(((unsigned int *)&pageTable[i])[0]);
+    print_hex(((unsigned int *)&pageTable[i])[1]);
+  }
+
+  /* memory */
+  for (; i < LPAE_ENTRIES; i++) {
     pageTable[i].block.type = 0x1;
     pageTable[i].block.outputAddr = i*(1<<9);
     pageTable[i].block.upperBlockAttrs = 0x00;
