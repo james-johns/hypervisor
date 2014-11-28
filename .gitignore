@@ -9,6 +9,7 @@ hypervisor
 *.bin
 uImage
 *.d
+TAGS
 
 # backup files
 *~
