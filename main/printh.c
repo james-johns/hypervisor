@@ -1,5 +1,5 @@
 
-
+#include <va_arg.h>
 #include <printh.h>
 
 #define UART_BASE ((unsigned char *)0x01C28000)
@@ -8,6 +8,36 @@
 
 #define STATUS_Tx_EMPTY (1 << 5)
 
+void printh_format(const char c, va_list *args)
+{
+	switch (c) {
+	case 'd':
+		print_hex(va_arg(*args, int));
+		break;
+	default:
+		print_str("~~ Error in printh_format ~~");
+		break;
+	}
+}
+
+void printh(const char *fmt, ...)
+{
+	va_list args;
+	int i=0;
+	va_start(args, fmt);
+	for (; fmt[i] != 0x00; i++) {
+		switch (fmt[i]) {
+		case '%':
+			i++; // skip the next character
+			printh_format(fmt[i], &args);
+			break;
+		default:
+			putc(fmt[i]);
+			break;
+		}
+	}
+	va_end(args);
+}
 
 void print_str(const char *str)
 {
