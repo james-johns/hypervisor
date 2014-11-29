@@ -6,22 +6,35 @@
 
 void va_arg_test(const char *fmt, ...)
 {
+	int fails = 0;
         va_list arg;
         va_list tmp;
-	printh("Test: va_arg_test\r\n");
+	printh("Test: va_arg_test ");
         va_start(arg, fmt);
 
         tmp = arg;
-        if (va_arg(arg, int) != 0x0a0a0a0a)
+        if (va_arg(arg, int) != 0x0a0a0a0a) {
+		fails++;
                 print_str("Error with va_arg initial value\r\n");
-        if (arg <= tmp)
+	}
+        if (arg <= tmp) {
+		fails++;
                 print_str("va_arg does not modify arg correctly\r\n");
-        if (va_arg(arg, int) != (int)0xa0a0a0a0)
+	}
+        if (va_arg(arg, int) != (int)0xa0a0a0a0) {
+		fails++;
                 print_str("Error with va_arg sequential value\r\n");
+	}
 
         va_end(arg);
-        if (arg != 0x0)
+        if (arg != 0x0) {
+		fails++;
                 print_str("Error with va_end, arg still valid\r\n");
+	}
+	if (fails > 0)
+		print_str(" [FAIL] ");
+	else
+		print_str(" [PASS] ");
 }
 
 void test_va_arg() 
