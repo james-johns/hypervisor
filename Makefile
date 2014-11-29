@@ -28,6 +28,7 @@ hypervisor-obj:=
 ARCH?=arm
 include arch/$(ARCH)/Makefile
 include main/Makefile
+include tests/Makefile
 
 .PHONY: all clean distclean hypervisor TAGS
 

@@ -1,5 +1,6 @@
 
-#define GIC_BASE 0x01c80000
+#include <config.h>
+#include <tests.h>
 #include <printh.h>
 #include <gic.h>
 #include <memory.h>
@@ -17,6 +18,7 @@ void hyp_main()
 
 	init_mmu();
 
+	test_hypervisor();
 	print_str("\r\nHalting!");
 	while (1) {
 		//    asm volatile("wfe"::);
