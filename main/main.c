@@ -1,9 +1,26 @@
 
-extern void print_str(const char *str);
-extern void print_hex(const int hex);
+#include <config.h>
+#include <tests.h>
+#include <printh.h>
+#include <gic.h>
+#include <memory.h>
 
-void hyp_main() {
-  print_str("Starting hyp main\r\n");
-  print_hex(0x12345678);
-  while(1);
+void init_irqs();
+void init_timer();
+
+void hyp_main()
+{
+
+	print_str("Starting hyp main\r\n");
+
+	init_irqs();
+	init_timer();
+
+	init_mmu();
+
+	test_hypervisor();
+	print_str("\r\nHalting!");
+	while (1) {
+		//    asm volatile("wfe"::);
+	}
 }
