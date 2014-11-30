@@ -2,4 +2,4 @@
 
 
 
-hypervisor-obj+=main/main.o main/printh.o
+hypervisor-obj+=main/main.o main/printh.o main/malloc.o
