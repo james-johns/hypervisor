@@ -38,5 +38,5 @@ void timer_interrupt()
 	TIMER_IRQ_STATUS |= 0x04;
 	TIMER_IRQ_EN = 0x04;
 	TIMER2_CTRL |= 0x01;
-	print_str("Tick\r\n");
+//	print_str("Tick\r\n");
 }

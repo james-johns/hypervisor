@@ -1,0 +1,111 @@
+
+
+
+#include <pageTable.h>
+#include <memory.h>
+#include <malloc.h>
+#include <printh.h>
+
+#define NULL ((void *)0)
+
+struct pageTable_s *createPageTable() 
+{
+	struct pageTable_s *toRet;
+	unsigned int i;
+
+	toRet = (struct pageTable_s *) malloc_aligned(sizeof(struct pageTable_s), 4096);
+	for (i = 0; i < LPAE_ENTRIES; i++) {
+		toRet->entry[i].type = 0x0;
+	}
+
+	return toRet;
+}
+
+struct pageDescriptor_s createPageDescriptor(unsigned int phys, unsigned int type, unsigned int attrs)
+{
+	struct pageDescriptor_s toRet;
+
+	toRet.type = type & 0x3;
+	toRet.lowAddr    = ((phys & 0x001FF000) >> 12);
+	toRet.highAddr   = ((phys & 0xFFE00000) >> 21);
+	toRet.lowAttrs   = (attrs & 0x000003FF);
+	toRet.highAttrs  = (attrs & 0x000FFC00) >> 10;
+	toRet.zero = 0;
+
+	return toRet;
+}
+
+void setPageTableEntry(struct pageTable_s *table, 
+		struct pageDescriptor_s descriptor, unsigned short offset)
+{
+	if (offset >= 0x200)
+		return;
+
+	table->entry[offset] = descriptor;
+}
+
+struct pageTable_s *getPageTable(struct pageDescriptor_s descriptor)
+{
+	struct pageTable_s *toRet;
+	unsigned int addr;
+
+	if (descriptor.type != 0x3)
+		return NULL;
+	addr = (descriptor.highAddr << 21) | (descriptor.lowAddr << 12);
+	toRet = (struct pageTable_s *)addr;
+
+	return toRet;
+}
+
+void mapPageTable(unsigned int startLevel, struct pageTable_s *table, 
+		struct pageTable_s *nextTable, unsigned int virt)
+{
+	struct pageDescriptor_s desc = createPageDescriptor((unsigned int)nextTable, 0x3, 0x3df);
+	unsigned int offset = (virt & ((startLevel == 1) ? 0xC0000000 : 0x3FE00000))
+		>> ((startLevel == 1) ? 30 : 21);
+
+	setPageTableEntry(table, desc, offset);
+}
+
+void mapVirtToPhys(struct pageTable_s *table, unsigned int virt, unsigned int phys,
+		unsigned int size, unsigned int attrs)
+{
+	unsigned int i, j, k;
+	unsigned int allocated = 0;
+	for (i = (((virt + allocated) & 0xC0000000) >> 30); i < LPAE_ENTRIES && allocated < size; i++) {
+		if (size - allocated >= 0x40000000 && !((virt + allocated) & 0x3FFFFFFF)) {
+			/* table entry can be a block instead of page table */
+			struct pageDescriptor_s desc = createPageDescriptor(phys + allocated, 0x1, attrs);
+			setPageTableEntry(table, desc, i);
+			allocated += 0x40000000;
+			continue;
+		} else {	/* else */
+			struct pageTable_s *secondLevel = getPageTable(table->entry[i]);
+			if (secondLevel == NULL) {
+				secondLevel = createPageTable();
+				mapPageTable(1, table, secondLevel, (i*0x40000000));
+			}
+			for (j = (((virt + allocated) & 0x3FE00000) >> 21); j < LPAE_ENTRIES && allocated < size; j++) {
+				if (size - allocated >= 0x00200000 && !((virt + allocated) & 0x001FFFFF)) {
+					/* table entry can be a block instead of page table */
+					struct pageDescriptor_s desc = createPageDescriptor(phys + allocated, 0x1, attrs);
+					setPageTableEntry(secondLevel, desc, j);
+					allocated += 0x00200000;
+					continue;
+				} else {
+					struct pageTable_s *thirdLevel = getPageTable(secondLevel->entry[j]);
+					if (thirdLevel == NULL && !(secondLevel->entry[j].type & 0x1)) {
+						thirdLevel = createPageTable();
+						mapPageTable(2, secondLevel, thirdLevel, 
+							(i*0x40000000) + (j*0x00200000));
+					}
+					for (k = (((virt + allocated) & 0x001FF000) >> 12); k < LPAE_ENTRIES && allocated < size; k++) {
+						struct pageDescriptor_s desc = createPageDescriptor(phys + allocated, 0x3, attrs);
+						setPageTableEntry(thirdLevel, desc, k);
+						allocated += 0x1000;
+					}
+				}
+			}
+		}
+	}
+}
