@@ -8,4 +8,5 @@ SECTIONS
  .data : ALIGN(0x1000) { *(.data*) }
  .bss : ALIGN(0x1000) { *(.bss*) *(COMMON*) }
  . = ALIGN(8);
+ _end = .;
 }

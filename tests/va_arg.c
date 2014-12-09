@@ -32,9 +32,9 @@ void va_arg_test(const char *fmt, ...)
                 print_str("Error with va_end, arg still valid\r\n");
 	}
 	if (fails > 0)
-		print_str(" [FAIL] ");
+		print_str(" [FAIL]\r\n");
 	else
-		print_str(" [PASS] ");
+		print_str(" [PASS]\r\n");
 }
 
 void test_va_arg() 

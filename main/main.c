@@ -10,7 +10,7 @@ void init_timer();
 
 void hyp_main()
 {
-
+	_end = (unsigned int) &_end;
 	print_str("Starting hyp main\r\n");
 
 	init_irqs();

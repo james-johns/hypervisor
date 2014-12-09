@@ -3,31 +3,23 @@
 #ifndef _MEMORY_H_
 #define _MEMORY_H_
 
-struct pageDescriptor_block_s {
-	unsigned int type:2;
-	unsigned int lowerBlockAttrs:10;
-	unsigned int zero2:9;
-	unsigned int outputAddr:18;
-	unsigned int zero1:12;
-	unsigned int upperBlockAttrs:12;
-} __attribute__ ((packed));
-
-struct pageDescriptor_table_s {
-	unsigned int type:2;
-	unsigned int lowerBlockAttrs:10;
-	unsigned int zero2:9;
-	unsigned int outputAddr:18;
-	unsigned int zero1:12;
-	unsigned int upperBlockAttrs:12;
-} __attribute__ ((packed));
+#define LPAE_ENTRIES 0x200
 
 struct pageDescriptor_s {
-	union {
-		struct pageDescriptor_block_s block;
-		struct pageDescriptor_table_s table;
-	};
+	unsigned int type:2;
+	unsigned int lowAttrs:10;
+	unsigned int lowAddr:9;
+	unsigned int highAddr:19;
+	unsigned int zero:12;
+	unsigned int highAttrs:12;
+} __attribute__ ((packed));
+
+struct pageTable_s {
+	struct pageDescriptor_s entry[LPAE_ENTRIES];
 } __attribute__ ((packed));
 
 void init_mmu();
+
+extern unsigned int _end;
 
 #endif
