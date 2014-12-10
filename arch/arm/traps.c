@@ -2,37 +2,19 @@
 #include <config.h>
 #include <printh.h>
 #include <gic.h>
+#include <cpu.h>
 
 void install_hyp_vectors();
 void timer_interrupt();
 
 void init_irqs()
 {
-
 	install_hyp_vectors();
 
 	init_gic();
 }
 
-struct cpu_regs {
-	unsigned int r0;
-	unsigned int r1;
-	unsigned int r2;
-	unsigned int r3;
-	unsigned int r4;
-	unsigned int r5;
-	unsigned int r6;
-	unsigned int r7;
-	unsigned int r8;
-	unsigned int r9;
-	unsigned int r10;
-	unsigned int r11;
-	unsigned int r12;
-	unsigned int pc;
-	unsigned int cpsr;
-};
-
-void print_regs(struct cpu_regs *regs)
+void print_regs(struct cpuRegs_s *regs)
 {
 	print_str("\r\nR0 : ");
 	print_hex(regs->r0);
@@ -67,37 +49,37 @@ void print_regs(struct cpu_regs *regs)
 	print_str("\r\n\r\n");
 }
 
-void handle_trap_undefined_instruction(struct cpu_regs *regs)
+void handle_trap_undefined_instruction(struct cpuRegs_s *regs)
 {
 	print_str("\r\nUndefine Instruction Trap");
 	print_regs(regs);
 }
 
-void handle_trap_supervisor_call(struct cpu_regs *regs)
+void handle_trap_supervisor_call(struct cpuRegs_s *regs)
 {
 	print_str("\r\nSupervisor Call Trap");
 	print_regs(regs);
 }
 
-void handle_trap_prefetch_abort(struct cpu_regs *regs)
+void handle_trap_prefetch_abort(struct cpuRegs_s *regs)
 {
 	print_str("\r\nPrefetch Abort Trap");
 	print_regs(regs);
 }
 
-void handle_trap_data_abort(struct cpu_regs *regs)
+void handle_trap_data_abort(struct cpuRegs_s *regs)
 {
 	print_str("\r\nData Abort Trap");
 	print_regs(regs);
 }
 
-void handle_trap_hyp_call(struct cpu_regs *regs)
+void handle_trap_hyp_call(struct cpuRegs_s *regs)
 {
 	print_str("\r\nHYP Call Trap");
 	print_regs(regs);
 }
 
-void handle_trap_irq(struct cpu_regs *regs)
+void handle_trap_irq(struct cpuRegs_s *regs)
 {
 	unsigned int interrupt = GICC[GICC_IAR];
 	if (interrupt == 0x38) {
@@ -111,7 +93,7 @@ void handle_trap_irq(struct cpu_regs *regs)
 	GICC[GICC_EOIR] = interrupt;	// end of interrupt
 }
 
-void handle_trap_fiq(struct cpu_regs *regs)
+void handle_trap_fiq(struct cpuRegs_s *regs)
 {
 	print_str("\r\nFIQ Trap");
 	print_regs(regs);
