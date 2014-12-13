@@ -32,7 +32,7 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	guest->regs.pc = (baseAddr + 0x8000);
 	guest->regs.cpsr = 0x000001D3;
 	guest->regs.r0 = 0;
-	guest->regs.r1 = 0;
+	guest->regs.r1 = 0x000010bb;
 	guest->regs.r2 = 0;
 	guest->regs.r3 = 0;
 
