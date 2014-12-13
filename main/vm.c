@@ -26,10 +26,11 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	struct guestVM_s *guest = malloc(sizeof(struct guestVM_s));
 
 	guest->stageOneTable = createPageTable();
-	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x3df);
+	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x3DF);
+	mapMemoryToVM(guest, 0x01c28000, 0x01c28000, 0x4000, 0x39C);
 
 	guest->regs.pc = (baseAddr + 0x8000);
-	guest->regs.cpsr = 0x00000013;
+	guest->regs.cpsr = 0x000001D3;
 	guest->regs.r0 = 0;
 	guest->regs.r1 = 0;
 	guest->regs.r2 = 0;
