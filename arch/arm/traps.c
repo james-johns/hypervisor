@@ -3,6 +3,7 @@
 #include <printh.h>
 #include <gic.h>
 #include <cpu.h>
+#include <memory.h>
 
 void install_hyp_vectors();
 void timer_interrupt();
@@ -12,6 +13,9 @@ void init_irqs()
 	install_hyp_vectors();
 
 	init_gic();
+
+	printh("HCR %d\r\n", getHCR());
+//	setHCR(0x00000038);
 }
 
 void print_regs(struct cpuRegs_s *regs)

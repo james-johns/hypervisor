@@ -11,6 +11,13 @@
 // page tables have LPAE_ENTRIES number of entries, therefore 
 struct pageTable_s *hypPageTable;
 
+void memcpy(unsigned char *source, unsigned char *dest, unsigned int size)
+{
+	unsigned int i;
+	for (i = 0; i < size; i++) {
+		dest[i] = source[i];
+	}
+}
 
 void init_mmu()
 {

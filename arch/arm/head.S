@@ -125,6 +125,14 @@ GLOBAL(getVTCR)
 getVTCR:
 	mrc p15, 4, r0, c2, c1, 2
 	mov pc, lr
+GLOBAL(setHCR)
+setHCR:
+	mcr p15, 4, r0, c1, c1, 0
+	mov pc, lr
+GLOBAL(getHCR)
+getHCR:
+	mrc p15, 4, r0, c1, c1, 0
+	mov pc, lr
 
 GLOBAL(setHTTBR)
 setHTTBR:

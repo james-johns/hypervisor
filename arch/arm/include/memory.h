@@ -24,6 +24,8 @@ void setMAIR1VAL(unsigned int val);
 void setGuestTTBR(unsigned int tableAddr);
 void setVTCR(unsigned int vtcr);
 unsigned int getVTCR();
+void setHCR(unsigned int vtcr);
+unsigned int getHCR();
 void enableMMU();
 
 void init_mmu();
