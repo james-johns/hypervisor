@@ -83,7 +83,7 @@ void handle_trap_irq(struct cpuRegs_s *regs)
 {
 	unsigned int interrupt = GICC[GICC_IAR];
 	if (interrupt == 0x38) {
-		timer_interrupt();
+		timer_interrupt(regs);
 	} else {
 		print_str("\r\nIRQ Trap");
 		print_hex(interrupt);

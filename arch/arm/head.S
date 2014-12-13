@@ -112,6 +112,20 @@ trap_fiq:
 	RESTORE_REGS
 	eret
 
+GLOBAL(setGuestTTBR)
+setGuestTTBR:
+	mov r1, #0
+	mcrr p15, 6, r0, r1, c2
+	mov pc, lr
+GLOBAL(setVTCR)
+setVTCR:
+	mcr p15, 4, r0, c2, c1, 2
+	mov pc, lr
+GLOBAL(getVTCR)
+getVTCR:
+	mrc p15, 4, r0, c2, c1, 2
+	mov pc, lr
+
 GLOBAL(setHTTBR)
 setHTTBR:
 	mcrr p15, 4, r0, r1, c2

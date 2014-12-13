@@ -2,6 +2,9 @@
 #include <config.h>
 #include <gic.h>
 #include <printh.h>
+#include <vm.h>
+#include <schedule.h>
+
 
 #define TIMER_BASE       ((unsigned int *)0x01C20C00)
 #define TIMER_IRQ_EN     *(TIMER_BASE+0x0)
@@ -33,10 +36,11 @@ void print_timer_value()
 	print_hex(TIMER_IRQ_EN);
 }
 
-void timer_interrupt()
+void timer_interrupt(struct cpuRegs_s *regs)
 {
 	TIMER_IRQ_STATUS |= 0x04;
 	TIMER_IRQ_EN = 0x04;
 	TIMER2_CTRL |= 0x01;
 //	print_str("Tick\r\n");
+	schedule(regs);
 }

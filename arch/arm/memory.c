@@ -12,12 +12,6 @@
 struct pageTable_s *hypPageTable;
 
 
-void setHTTBR(unsigned int lo, unsigned int hi);
-void setMAIR0VAL(unsigned int val);
-void setMAIR1VAL(unsigned int val);
-void enableMMU();
-
-
 void init_mmu()
 {
 	hypPageTable = createPageTable();
