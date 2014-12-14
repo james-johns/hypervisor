@@ -8,8 +8,8 @@
 
 void print_regs(struct cpuRegs_s *regs);
 
-struct guestVM_s *nextScheduledVM;
-struct guestVM_s *currentVM;
+static struct guestVM_s *nextScheduledVM;
+static struct guestVM_s *currentVM;
 
 void scheduleVM(struct guestVM_s *guest)
 {

@@ -20,6 +20,9 @@ struct cpuRegs_s {
 	unsigned int r12;
 	unsigned int pc;
 	unsigned int cpsr;
+	unsigned int lr;
+	unsigned int SP_usr;
+	unsigned int lr_svc;
 };
 
 #endif

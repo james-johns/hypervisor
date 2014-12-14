@@ -11,7 +11,7 @@ void print_regs(struct cpuRegs_s *regs);
 void mapMemoryToVM(struct guestVM_s *guest, unsigned int baseAddr, 
 		unsigned int targetAddr, unsigned int size, unsigned int attrs)
 {
-	mapVirtToPhys(guest->stageOneTable, baseAddr, targetAddr, size, attrs);
+	mapVirtToPhys(guest->stageOneTable, targetAddr, baseAddr, size, attrs);
 }
 
 /* baseAddr is the base address of RAM to be assigned to VM. 
@@ -21,8 +21,8 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	struct guestVM_s *guest = malloc(sizeof(struct guestVM_s));
 
 	guest->stageOneTable = createPageTable();
-	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x3DF);
-	mapMemoryToVM(guest, 0x01c28000, 0x01c28000, 0x4000, 0x39C);
+	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x1FF); // 01 1111 1111
+	mapMemoryToVM(guest, 0x01c28000, 0x01c28000, 0x1000, 0x1B1);   // 01 1011 0001
 
 	guest->regs.pc = (0x40008000);
 	guest->regs.cpsr = 0x000001D3;

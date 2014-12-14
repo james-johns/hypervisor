@@ -50,6 +50,12 @@ void print_regs(struct cpuRegs_s *regs)
 	print_hex(regs->pc);
 	print_str("\r\nPSR: ");
 	print_hex(regs->cpsr);
+	print_str("\r\nlr: ");
+	print_hex(regs->lr);
+	print_str("\r\nSP_usr: ");
+	print_hex(regs->SP_usr);
+	print_str("\r\nlr_svc: ");
+	print_hex(regs->lr_svc);
 	print_str("\r\n\r\n");
 }
 
@@ -79,8 +85,23 @@ void handle_trap_data_abort(struct cpuRegs_s *regs)
 
 void handle_trap_hyp_call(struct cpuRegs_s *regs)
 {
-	print_str("\r\nHYP Call Trap");
-	print_regs(regs);
+	unsigned int hpfar, hifar, hdfar, hsr;
+	print_str("\r\nHYP Call Trap\r\n");
+	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);
+
+	asm volatile("mrc p15, 4, %0, c6, c0, 0":"=r"(hdfar):);
+	asm volatile("mrc p15, 4, %0, c6, c0, 2":"=r"(hifar):);
+	asm volatile("mrc p15, 4, %0, c6, c0, 4":"=r"(hpfar):);
+	printh("HSR: %d\r\n", hsr);
+	if (hpfar) {
+		printh("HPFAR (%d)\r\n", hpfar);
+		printh("HIFAR (%d)\r\n", hifar);
+		printh("HDFAR (%d)\r\n", hdfar);
+		print_regs(regs);
+	} else {
+		print_regs(regs);
+	}
+	while (1);
 }
 
 void handle_trap_irq(struct cpuRegs_s *regs)
