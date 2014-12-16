@@ -7,6 +7,7 @@
 
 void scheduleVM(struct guestVM_s *guest);
 void schedule(struct cpuRegs_s *regs);
+struct guestVM_s *getCurrentVM();
 
 void init_scheduler();
 

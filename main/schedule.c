@@ -8,48 +8,53 @@
 
 void print_regs(struct cpuRegs_s *regs);
 
-static struct guestVM_s *nextScheduledVM;
-static struct guestVM_s *currentVM;
+struct guestVM_s *virtualMachines[4];
+signed int allocatedVMs;
+signed int currentVMID;
+
+struct guestVM_s *getCurrentVM()
+{
+	if (currentVMID < 0)
+		return ((void *)0);
+	return virtualMachines[currentVMID];
+}
 
 void scheduleVM(struct guestVM_s *guest)
 {
-	nextScheduledVM = guest;
+	printh("Scheduling vm %d %d ", allocatedVMs, guest);
+	virtualMachines[allocatedVMs] = guest;
+	printh("%d\r\n", virtualMachines[allocatedVMs]);
+	allocatedVMs++;
 }
 
 void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 {
-//	printh("Switching to %d\r\n", nextVM);
-	*regs = nextVM->regs;
+	memcpy((void *)&nextVM->regs, (void *)regs, sizeof(struct cpuRegs_s));
 	setVTCR(0x80003540);
 	setGuestTTBR((unsigned int)nextVM->stageOneTable);
-	currentVM = nextVM;
+	setHCR(getHCR() | 0x01);
 }
 
 void saveVMState(struct cpuRegs_s *regs)
 {
-	if (currentVM != ((void *) 0)) {
-//		printh("CurrentVM (%d)\r\n", currentVM);
-		currentVM->regs = (*regs);
-		/* move VM onto scheduler queue */
+	if (currentVMID >= 0) {
+		memcpy((void *)regs, (void *)&virtualMachines[currentVMID]->regs, sizeof(struct cpuRegs_s));
 	}
 }
 
 void schedule(struct cpuRegs_s *regs)
 {
-	if (nextScheduledVM != ((void *) 0)) {
-		printh("Before:\r\n");
-		print_regs(regs);
+	if (allocatedVMs > 0) {
 		saveVMState(regs);
-		switchToVM(nextScheduledVM, regs);
-		printh("After:\r\n");
-		print_regs(regs);
-		setHCR(getHCR() | 0x01);
-		nextScheduledVM = ((void *)0);
+		currentVMID++;
+		if (currentVMID >= allocatedVMs)
+			currentVMID = 0;
+		switchToVM(virtualMachines[currentVMID], regs);
 	}
 }
 
 void init_scheduler()
 {
-	nextScheduledVM = ((void *)0);
-	currentVM = ((void *)0);
+	allocatedVMs = 0;
+	currentVMID = -1;
 }
