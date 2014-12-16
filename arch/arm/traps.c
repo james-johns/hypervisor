@@ -3,6 +3,7 @@
 #include <printh.h>
 #include <gic.h>
 #include <vgic.h>
+#include <vtimer.h>
 #include <cpu.h>
 #include <memory.h>
 
@@ -87,7 +88,7 @@ void handle_trap_data_abort(struct cpuRegs_s *regs)
 void handle_trap_hyp_call(struct cpuRegs_s *regs)
 {
 	unsigned int hpfar, hifar, hdfar, hsr;
-	print_str("\r\nHYP Call Trap\r\n");
+//	print_str("\r\nHYP Call Trap\r\n");
 	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);
 
 	asm volatile("mrc p15, 4, %0, c6, c0, 0":"=r"(hdfar):);
@@ -95,13 +96,18 @@ void handle_trap_hyp_call(struct cpuRegs_s *regs)
 	asm volatile("mrc p15, 4, %0, c6, c0, 4":"=r"(hpfar):);
 
 	if ((hsr & 0xFC000000)) {
-		printh("EC: %d,     IL: %d,     ISS: %d\r\n", ((hsr & 0xFC000000) >> 26), ((hsr & 0x02000000) >> 25), (hsr & 0x01FFFFFF));
+/*		printh("EC: %d,     IL: %d,     ISS: %d\r\n", ((hsr & 0xFC000000) >> 26), ((hsr & 0x02000000) >> 25), (hsr & 0x01FFFFFF));
 		printh("HPFAR (%d)\r\n", hpfar);
 		printh("HIFAR (%d)\r\n", hifar);
-		printh("HDFAR (%d)\r\n", hdfar);
+		printh("HDFAR (%d)\r\n", hdfar);*/
 		if (hpfar == (((unsigned int)GICD) >> 8)) {
-			printh("calling vgicHandler\r\n");
+//			printh("calling vgicHandler\r\n");
 			vgicHandler(hsr, hpfar, hdfar, regs);
+		} else if (hpfar == 0x0001c200) {
+//			printh("Calling vtimerHandler\r\n");
+			vtimerHandler(hsr, hpfar, hdfar, regs);
+		} else {
+			printh("Not handling address %d\r\n", hdfar);
 		}
 		regs->pc += 4;
 	} else {
