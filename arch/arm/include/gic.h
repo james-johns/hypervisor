@@ -12,6 +12,8 @@
 #define GICC ((unsigned int *)(GIC_BASE + 0x2000))
 #define GICH ((unsigned int *)(GIC_BASE + 0x4000))
 
+#define GICV(n) ((unsigned int *)(GIC_BASE + 0x6000 + (0x1000 * n)))
+
 #define GICD_CTLR           0	// 0x00
 #define GICD_TYPER          (0x04/4)	// 0x04 / 4
 #define GICD_IIDR           (0x08/4)	// 0x08 / 4
@@ -37,9 +39,13 @@
 #define GICC_EOIR           4
 #define GICC_DIR            (0x1000/4)
 
+#define GICH_LR(n) n+(0x100/4)
 
 void init_gic();
 
 void enable_irq(unsigned int irqn);
+void enableIRQS();
+void disableIRQS();
+
 
 #endif
