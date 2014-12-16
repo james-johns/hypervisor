@@ -4,7 +4,6 @@ hypervisor-obj+= \
 arch/arm/head.o \
 arch/arm/traps.o \
 arch/arm/timer.o \
-arch/arm/irq.o \
 arch/arm/gic.o \
 arch/arm/vgic.o \
 arch/arm/vtimer.o \
