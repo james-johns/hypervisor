@@ -12,6 +12,13 @@ struct hfarRegs_s {
 	unsigned int hsr, hdfar, hpfar;
 };
 
+void printGICHypState();
+
+void setVGIC(struct vgic_s *vgic)
+{
+	GICH[GICH_HCR] = vgic->ctlr;
+}
+
 void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset, 
 			unsigned int *destReg)
 {
@@ -22,13 +29,16 @@ void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset,
 		while (1);
 		break;
 	case GICD_CTLR * 4:
-		*destReg = GICV(0)[GICD_CTLR] & 0x1;
+		*destReg = guest->vgic.ctlr;
 		break;
 	case GICD_TYPER * 4:
-		*destReg = guest->vgic.typer;
+		*destReg = 0x00000003;//guest->vgic.typer;
 		break;
 	case GICD_IPRIORITYR(0)*4 ... GICD_IPRIORITYR(0x3FF)*4:
 		*destReg = guest->vgic.priority[distOffset&0x3FF];
+		break;
+	case GICD_ITARGETSR(0)*4 ... GICD_ITARGETSR(0xF8)*4:
+		*destReg = guest->vgic.target[distOffset & 0xFF];
 		break;
 	}
 }
@@ -46,18 +56,24 @@ void vgicHandlerDistWrite(struct guestVM_s *guest, unsigned int distOffset,
 		guest->vgic.ctlr = *srcReg;
 		break;
 	case GICD_ICENABLER(0)*4 ... GICD_ICENABLER(0x7F)*4:
+		printh("Disabling %d offset %d\r\n", *srcReg, ((distOffset & 0x7F)/4));
 		guest->vgic.enabled[distOffset&0x7F] &= ~(*srcReg);
 		break;
 	case GICD_ISENABLER(0)*4 ... GICD_ISENABLER(0x7F)*4:
-		printh("Enabling %d\r\n", *srcReg);
+		printh("Enabling %d offset %d\r\n", *srcReg, ((distOffset & 0x7F)/4));
 		guest->vgic.enabled[distOffset&0x7F] |= *srcReg;
 		break;
 	case GICD_IPRIORITYR(0)*4 ... GICD_IPRIORITYR(0x3FF)*4:
+		printh("Priority(%d) %d\r\n", distOffset&0x3FF, *srcReg);
 		guest->vgic.priority[distOffset&0x3FF] = *srcReg;
 		break;
-	case 0xC00:
-	case 0xC04:
+	case GICD_ITARGETSR(0)*4 ... GICD_ITARGETSR(0xF8)*4:
+		printh("ITARGETSR set to %d\r\n", *srcReg);
+		guest->vgic.target[distOffset & 0xFF] = *srcReg;
+		break;
+	case GICD_ICFGR(0)*4 ... GICD_ICFGR(0xFC)*4:
 		/* ignore */
+		printh("ICFGR set to %d\r\n", *srcReg);
 		break;
 	}
 }
@@ -93,6 +109,7 @@ void vgicHandlerDist(struct hfarRegs_s *hfar, struct cpuRegs_s *regs)
 		printh("Fault does not hold a valid Instruction Syndrome, ignoring and bailing out\r\n");
 		return;
 	}
+	printGICHypState();
 }
 
 void vgicHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar, 
@@ -109,16 +126,19 @@ void vgicHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar,
 void triggerVIRQ(unsigned int irqNum)
 {
 	struct guestVM_s *guest = getCurrentVM();
-	unsigned int priority = (guest->vgic.priority[irqNum/4] & (irqNum % 4)) >> ((irqNum % 4) * 8);
-	unsigned int listReg = 0x80000000; // assume hardware interrupt, state pending
+	unsigned int priority;
+	unsigned int listReg;
 
-//	if (guest->vgic.enabled[irqNum/32] & (1 << (irqNum % 32))) {
-		listReg |= priority << 23;
-		listReg |= irqNum;          // virtual irq ID
-		listReg |= 56 << 10;    // physical irq ID
+	if (guest->vgic.enabled[irqNum/32] & (1 << (irqNum % 32))) {
+		priority = (guest->vgic.priority[irqNum/4] & (irqNum % 4)) >> ((irqNum % 4) * 8);
 
-		printh("Triggering VIRQ %d (%d)\r\n", irqNum, listReg);
+		listReg = 0x90000000;               // assume hardware interrupt, state pending
+		listReg |= (priority & 0xFF) << 23;
+		listReg |= irqNum;                  // virtual irq ID
+		listReg |= irqNum << 10;            // physical irq ID
+
+//	        printh("Triggering VIRQ %d (%d)\r\n", irqNum, listReg);
 		GICH[GICH_LR(0)] = listReg;
-//	}
+	}
 }
 

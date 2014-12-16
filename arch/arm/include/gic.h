@@ -39,7 +39,13 @@
 #define GICC_EOIR           4
 #define GICC_DIR            (0x1000/4)
 
-#define GICH_LR(n) n+(0x100/4)
+#define GICH_HCR            (0x0)
+#define GICH_VMCR           (0x8/4)
+#define GICH_MISR           (0x10/4)
+#define GICH_EOISR(n)       n+(0x20/4)
+#define GICH_ELSR(n)        n+(0x30/4)
+#define GICH_APR            (0xF0/4)
+#define GICH_LR(n)          n+(0x100/4)
 
 void init_gic();
 

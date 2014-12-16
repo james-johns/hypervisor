@@ -11,7 +11,9 @@ struct vgic_s {
 	unsigned int typer;
 	unsigned int enabled[0x80];
 	unsigned int priority[0x400];
+	unsigned int target[0x100];
 };
+void setVGIC(struct vgic_s *vgic);
 
 void vgicHandler(unsigned int hsr, unsigned int hpfar, 
 		unsigned int hdfar, struct cpuRegs_s *regs);
