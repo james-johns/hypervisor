@@ -23,7 +23,7 @@ void hyp_main()
 
 	init_mmu();
 
-	struct guestVM_s *guest = createVM(0x48000000, 0x08000000);
+	struct guestVM_s *guest = createVM(0x48000000, 0x20000000);
 
 	printh("Created guest (%d)\r\n", guest);
 
@@ -32,6 +32,9 @@ void hyp_main()
 	printh("Running guest\r\n");
 
 	scheduleVM(guest);
+
+	enableIRQS();
+
 
 	print_str("\r\nHalting!");
 	while (1) {
