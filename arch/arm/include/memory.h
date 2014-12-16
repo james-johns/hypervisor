@@ -27,6 +27,7 @@ unsigned int getVTCR();
 void setHCR(unsigned int vtcr);
 unsigned int getHCR();
 void enableMMU();
+void memcpy(void *source, void *dest, unsigned int size);
 
 void init_mmu();
 

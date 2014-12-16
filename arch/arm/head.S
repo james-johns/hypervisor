@@ -40,7 +40,6 @@ non_hyp:
 	b halt
 
 _start_main:
-	cpsie aif
 	mrs r0, cpsr
 	bl print_hex
 	bl hyp_main
@@ -48,6 +47,15 @@ _start_main:
 halt:
 	wfe
 	b halt
+
+GLOBAL(enableIRQS)
+enableIRQS:
+	cpsie aif
+	mov pc, lr
+GLOBAL(disableIRQS)
+disableIRQS:
+	cpsid aif
+	mov pc, lr
 	
 GLOBAL(install_hyp_vectors)
 install_hyp_vectors:
