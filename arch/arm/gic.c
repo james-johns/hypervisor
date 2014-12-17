@@ -1,7 +1,23 @@
 
 #include <config.h>
 #include <gic.h>
+#include <vgic.h>
 #include <printh.h>
+#include <irq.h>
+#include <virtdevice.h>
+
+
+void printGICHypState()
+{
+	printh("GICH_HCR: %d\r\n", GICH[GICH_HCR]);
+	printh("GICH_VMCR: %d\r\n", GICH[GICH_VMCR]);
+	printh("GICH_MISR: %d\r\n", GICH[GICH_MISR]);
+	printh("GICH_EOISR0: %d\r\n", GICH[GICH_EOISR(0)]);
+	printh("GICH_EOISR1: %d\r\n", GICH[GICH_EOISR(1)]);
+	printh("GICH_ELSR0: %d\r\n", GICH[GICH_ELSR(0)]);
+	printh("GICH_ELSR1: %d\r\n", GICH[GICH_ELSR(1)]);
+	printh("GICH_APR: %d\r\n", GICH[GICH_APR]);
+}
 
 void enable_irq(unsigned int irqn) {
 	GICD[GICD_ISENABLER(irqn / 32)] = 1 << (irqn % 32);
@@ -45,6 +61,8 @@ void init_gic_cpu() {
 }
 
 void init_gic() {
+	initIRQHandlers();
 	init_gic_distributor();
 	init_gic_cpu();
+	registerVirtDeviceHandler((unsigned int)GICD, vgicVirtDeviceHandler);
 }

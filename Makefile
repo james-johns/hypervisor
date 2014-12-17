@@ -9,13 +9,15 @@
 #
 ################################################################################
 CROSS_COMPILE?=
+ARCH?=arm
 
 AS:=$(CROSS_COMPILE)as
 CC:=$(CROSS_COMPILE)gcc
 LD:=$(CROSS_COMPILE)ld
 
-ASFLAGS+=-c -I./include -D__ASSEMBLY__ -mcpu=cortex-a7
-CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -mcpu=cortex-a7 -g -I./include
+ASFLAGS+=-c -I./include -I./arch/$(ARCH)/include -D__ASSEMBLY__ -mcpu=cortex-a7
+CFLAGS+=-ffreestanding -Wall -Wextra -Werror -nostdlib -nostartfiles -mcpu=cortex-a7 -g \
+	-I./include -I./arch/$(ARCH)/include
 
 Q:=@-
 
@@ -25,9 +27,9 @@ Q:=@-
 hypervisor-obj:=
 
 # include arch specific code
-ARCH?=arm
 include arch/$(ARCH)/Makefile
 include main/Makefile
+include lib/Makefile
 include tests/Makefile
 
 .PHONY: all clean distclean hypervisor TAGS

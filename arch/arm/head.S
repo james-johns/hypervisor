@@ -40,7 +40,6 @@ non_hyp:
 	b halt
 
 _start_main:
-	cpsie aif
 	mrs r0, cpsr
 	bl print_hex
 	bl hyp_main
@@ -48,6 +47,15 @@ _start_main:
 halt:
 	wfe
 	b halt
+
+GLOBAL(enableIRQS)
+enableIRQS:
+	cpsie aif
+	mov pc, lr
+GLOBAL(disableIRQS)
+disableIRQS:
+	cpsid aif
+	mov pc, lr
 	
 GLOBAL(install_hyp_vectors)
 install_hyp_vectors:
@@ -111,6 +119,28 @@ trap_fiq:
 	bl handle_trap_fiq
 	RESTORE_REGS
 	eret
+
+GLOBAL(setGuestTTBR)
+setGuestTTBR:
+	mov r1, #0
+	mcrr p15, 6, r0, r1, c2
+	mov pc, lr
+GLOBAL(setVTCR)
+setVTCR:
+	mcr p15, 4, r0, c2, c1, 2
+	mov pc, lr
+GLOBAL(getVTCR)
+getVTCR:
+	mrc p15, 4, r0, c2, c1, 2
+	mov pc, lr
+GLOBAL(setHCR)
+setHCR:
+	mcr p15, 4, r0, c1, c1, 0
+	mov pc, lr
+GLOBAL(getHCR)
+getHCR:
+	mrc p15, 4, r0, c1, c1, 0
+	mov pc, lr
 
 GLOBAL(setHTTBR)
 setHTTBR:
