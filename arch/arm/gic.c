@@ -1,7 +1,11 @@
 
 #include <config.h>
 #include <gic.h>
+#include <vgic.h>
 #include <printh.h>
+#include <irq.h>
+#include <virtdevice.h>
+
 
 void printGICHypState()
 {
@@ -57,6 +61,8 @@ void init_gic_cpu() {
 }
 
 void init_gic() {
+	initIRQHandlers();
 	init_gic_distributor();
 	init_gic_cpu();
+	registerVirtDeviceHandler((unsigned int)GICD, vgicVirtDeviceHandler);
 }

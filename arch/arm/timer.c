@@ -6,6 +6,9 @@
 #include <schedule.h>
 #include <vgic.h>
 #include <vtimer.h>
+#include <irq.h>
+#include <virtdevice.h>
+
 
 #define TIMER_BASE       ((unsigned int *)0x01C20C00)
 #define TIMER_IRQ_EN     *(TIMER_BASE+0x0)
@@ -20,6 +23,9 @@
 #define TIMER2_CTRL      *(TIMER2_OFF)
 #define TIMER2_INTRVL    *(TIMER2_OFF+(0x04/4))
 #define TIMER2_CUR_INTRVL *((unsigned int *)(TIMER2_OFF+(0x08/4)))
+void timer_interrupt(struct cpuRegs_s *regs);
+
+void vtimerVirtDeviceHandler(struct cpuRegs_s *regs);
 
 void init_timer()
 {
@@ -32,6 +38,8 @@ void init_timer()
 
 	TIMER_IRQ_EN = 0x04; // only interrupt on timer 2
 
+	registerVirtDeviceHandler((((unsigned int)TIMER_BASE) & 0xFFFFF000), vtimerVirtDeviceHandler);
+	registerIRQHandler(56, timer_interrupt);
 //	enable_irq(54);
 //	enable_irq(55);
 	enable_irq(56);

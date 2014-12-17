@@ -17,6 +17,7 @@ void setVGIC(struct vgic_s *vgic);
 
 void vgicHandler(unsigned int hsr, unsigned int hpfar, 
 		unsigned int hdfar, struct cpuRegs_s *regs);
+void vgicVirtDeviceHandler(struct cpuRegs_s *regs);
 
 void triggerVIRQ(unsigned int irqNum);
 
