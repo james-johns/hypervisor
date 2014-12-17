@@ -6,6 +6,8 @@
 #include <memory.h>
 #include <vm.h>
 #include <schedule.h>
+#include <virtdevice.h>
+#include <malloc.h>
 
 void init_irqs();
 void init_timer();
@@ -15,7 +17,10 @@ extern struct guestVM_s *nextScheduledVM;
 void hyp_main()
 {
 	_end = (unsigned int) &_end;
+	malloc(0x10);
 	print_str("Starting hyp main\r\n");
+
+	initVirtDevice();
 
 	init_irqs();
 	init_scheduler();

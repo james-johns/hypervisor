@@ -118,3 +118,12 @@ void vtimerHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar,
 		return;
 	}
 }
+
+void vtimerVirtDeviceHandler(struct cpuRegs_s *regs)
+{
+	unsigned int hdfar, hpfar, hsr;
+	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);
+	asm volatile("mrc p15, 4, %0, c6, c0, 0":"=r"(hdfar):);
+	asm volatile("mrc p15, 4, %0, c6, c0, 4":"=r"(hpfar):);
+	vtimerHandler(hsr, hpfar, hdfar, regs);
+}

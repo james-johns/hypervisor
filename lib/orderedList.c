@@ -4,7 +4,7 @@
 #include <malloc.h>
 #include <orderedList.h>
 
-struct orderedList_s *orderedListCreate(unsigned int maxSize, orderPredicate_t predicate)
+struct orderedList_s *createOrderedList(unsigned int maxSize, orderPredicate_t predicate)
 {
 	struct orderedList_s *toRet = malloc(sizeof(struct orderedList_s));
 	toRet->array = malloc(sizeof(void *)*maxSize);
@@ -17,17 +17,18 @@ struct orderedList_s *orderedListCreate(unsigned int maxSize, orderPredicate_t p
 void orderedListInsertItem(struct orderedList_s *list, void *item)
 {
 	unsigned int i = 0;
-	if (list->allocated == list->maxSize)
-		printh("List is full, cannot add another item\r\n");
+	if (list->allocated >= list->maxSize)
+		return;
 	/* find first entry in list that is more than the new item */
-	while (list->predicate(item, list->array[i]) > 0)
+	while (i < list->allocated && list->array[i] != NULL && list->predicate(item, list->array[i]) > 0)
 		i++;
 	/* place new item into list, moving everything along one */
-	void *tmp;
-	while (i <= list->allocated) {
+	void *tmp, *tmp2 = item;
+	while (i <= list->allocated && i < list->maxSize) {
 		tmp = list->array[i];
-		list->array[i] = item;
-		item = tmp;
+		list->array[i] = tmp2;
+		tmp2 = tmp;
+		i++;
 	}
 	list->allocated++;
 }
@@ -39,3 +40,17 @@ void *orderedListGetItem(struct orderedList_s *list, unsigned int index)
 	return list->array[index];
 }
 
+void *orderedListFindItem(struct orderedList_s *list, void *item)
+{
+	unsigned int i = 0;
+	while ((i < list->allocated) && (list->predicate(item, list->array[i]) != 0))
+		i++;
+	if (i >= list->allocated)
+		return NULL;
+
+	if (list->predicate(item, list->array[i]) == 0) 
+		return list->array[i];
+	else
+		return NULL;
+
+}
