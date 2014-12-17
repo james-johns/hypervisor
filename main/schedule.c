@@ -5,6 +5,7 @@
 #include <schedule.h>
 #include <memory.h>
 #include <printh.h>
+#include <vgic.h>
 
 void print_regs(struct cpuRegs_s *regs);
 
@@ -33,6 +34,7 @@ void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 	setVTCR(0x80003540);
 	setGuestTTBR((unsigned int)nextVM->stageOneTable);
 	setHCR(getHCR() | 0x01);
+	setVGIC(&nextVM->vgic);
 }
 
 void saveVMState(struct cpuRegs_s *regs)
