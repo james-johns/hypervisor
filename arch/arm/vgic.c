@@ -25,7 +25,7 @@ void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset,
 //	printh("vgicHandlerDistRead\r\n");
 	switch (distOffset) {
 	default:
-		printh("Read to Distributor reg %d is not implemented\r\n", distOffset);
+		printh("Read from Distributor reg %d is not implemented\r\n", distOffset);
 		while (1);
 		break;
 	case GICD_CTLR * 4:
@@ -34,11 +34,17 @@ void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset,
 	case GICD_TYPER * 4:
 		*destReg = 0x00000003;//guest->vgic.typer;
 		break;
+	case GICD_ISENABLER(0)*4 ... GICD_ISENABLER(0x7F)*4:
+		*destReg = guest->vgic.enabled[(distOffset & 0x7F) / 4];
+		break;
 	case GICD_IPRIORITYR(0)*4 ... GICD_IPRIORITYR(0x3FF)*4:
 		*destReg = guest->vgic.priority[distOffset&0x3FF];
 		break;
 	case GICD_ITARGETSR(0)*4 ... GICD_ITARGETSR(0xF8)*4:
 		*destReg = guest->vgic.target[distOffset & 0xFF];
+		break;
+	case 0xC00 ... 0xDFC:
+		// ignore ICFGRn
 		break;
 	}
 }
@@ -62,6 +68,9 @@ void vgicHandlerDistWrite(struct guestVM_s *guest, unsigned int distOffset,
 	case GICD_ISENABLER(0)*4 ... GICD_ISENABLER(0x7F)*4:
 //		printh("Enabling %d offset %d\r\n", *srcReg, ((distOffset & 0x7F)/4));
 		guest->vgic.enabled[(distOffset & 0x7F) / 4] |= *srcReg;
+		GICD[GICD_ISENABLER((distOffset & 0x7F))] = *srcReg;
+//		GICD[GICD_ITARGETSR(irqn / 4)] |= (0x01 << ((irqn % 4) * 8));
+//		GICD[GICD_IPRIORITYR(irqn / 4)] |= (0xa0 << ((irqn % 4) * 8));
 		break;
 	case GICD_IPRIORITYR(0)*4 ... GICD_IPRIORITYR(0x3FF)*4:
 //		printh("Priority(%d) %d\r\n", distOffset&0x3FF, *srcReg);
@@ -144,7 +153,7 @@ void triggerVIRQ(unsigned int irqNum)
 		listReg = 0x90000000;               // assume hardware interrupt, state pending
 		listReg |= (priority & 0xFF) << 23;
 		listReg |= irqNum;                  // virtual irq ID
-		listReg |= 56 << 10;            // physical irq ID
+		listReg |= irqNum << 10;            // physical irq ID
 
 //	        printh("Triggering VIRQ %d (%d)\r\n", irqNum, listReg);
 		GICH[GICH_LR(0)] = listReg;

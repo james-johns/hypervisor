@@ -6,6 +6,7 @@
 #include <printh.h>
 #include <config.h>
 #include <gic.h>
+#include <irq.h>
 
 void print_regs(struct cpuRegs_s *regs);
 
@@ -17,14 +18,21 @@ void mapMemoryToVM(struct guestVM_s *guest, unsigned int baseAddr,
 	mapVirtToPhys(guest->stageOneTable, targetAddr, baseAddr, size, attrs);
 }
 
+void dummyIRQHandler(struct cpuRegs_s *regs)
+{
+	regs->r0 = regs->r0;
+}
+
 /* baseAddr is the base address of RAM to be assigned to VM. 
  * Kernel must be placed 32KiB into this section of RAM.  */
 struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 {
 	struct guestVM_s *guest = malloc(sizeof(struct guestVM_s));
 
+//	registerIRQHandler(0x1B, dummyIRQHandler);
 	guest->stageOneTable = createPageTable();
 	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x1FF); /* base memory map */
+	mapMemoryToVM(guest, 0x00000000, 0x00000000, 0x10000, 0x1B1);   /* SRAM */
 	mapMemoryToVM(guest, 0x01c28000, 0x01c28000,  0x1000, 0x1B1);   /* UART0 */
 	mapMemoryToVM(guest, 0x01c00000, 0x01c00000,  0x1000, 0x1B1);   /* SRAM config regs */
 	mapMemoryToVM(guest, 0x01c01000, 0x01c01000,  0x1000, 0x1B1);   /* DRAM config regs */
@@ -42,6 +50,8 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	mapMemoryToVM(guest, 0x01c25000, 0x01c25000,  0x1000, 0x1B1);   /* PS2 config regs */
 	mapMemoryToVM(guest, 0x01c2a000, 0x01c2a000,  0x2000, 0x1B1);   /* PS2 config regs */
 	mapMemoryToVM(guest, 0x01c2c000, 0x01c2c000,  0x1000, 0x1B1);   /* PS2 config regs */
+	mapMemoryToVM(guest, 0x01c50000, 0x01c50000, 0x10000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c60000, 0x01c60000,  0x1000, 0x1B1);   /* USB config regs */
 	mapMemoryToVM(guest, 0x01e00000, 0x01e00000, 0x40000, 0x1B1);   /* DEFE config regs */
 	mapMemoryToVM(guest, 0x01e40000, 0x01e40000, 0x40000, 0x1B1);   /* DEBE config regs */
 	mapMemoryToVM(guest, (unsigned int)GICV(0), (unsigned int)GICC, 

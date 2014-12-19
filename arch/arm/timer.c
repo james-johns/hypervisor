@@ -27,22 +27,30 @@ void timer_interrupt(struct cpuRegs_s *regs);
 
 void vtimerVirtDeviceHandler(struct cpuRegs_s *regs);
 
+void macHandler(struct cpuRegs_s *regs)
+{
+	triggerVIRQ(117);
+	regs->r0 = regs->r0;
+}
+
 void init_timer()
 {
-	TIMERx_BASE(0)[TIMER_INTRVL] = 0x00400000;
+	TIMERx_BASE(0)[TIMER_INTRVL] = 0x00100000;
 	TIMERx_BASE(0)[TIMER_CTRL] = 0x07;
-	TIMERx_BASE(1)[TIMER_INTRVL] = 0x00400000;
+	TIMERx_BASE(1)[TIMER_INTRVL] = 0x00100000;
 	TIMERx_BASE(1)[TIMER_CTRL] = 0x07;
-	TIMERx_BASE(2)[TIMER_INTRVL] = 0x00400000;
+	TIMERx_BASE(2)[TIMER_INTRVL] = 0x00100000;
 	TIMERx_BASE(2)[TIMER_CTRL] = 0x07;
 
 	TIMER_IRQ_EN = 0x04; // only interrupt on timer 2
 
 	registerVirtDeviceHandler((((unsigned int)TIMER_BASE) & 0xFFFFF000), vtimerVirtDeviceHandler);
 	registerIRQHandler(56, timer_interrupt);
+	registerIRQHandler(117, macHandler);
 //	enable_irq(54);
 //	enable_irq(55);
 	enable_irq(56);
+	//	enable_irq(117);
 }
 
 void print_timer_value()
