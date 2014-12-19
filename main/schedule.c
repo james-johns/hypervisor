@@ -35,6 +35,7 @@ void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 	setGuestTTBR((unsigned int)nextVM->stageOneTable);
 	setHCR(getHCR() | 0x01);
 	setVGIC(&nextVM->vgic);
+	asm volatile("mcr p15, 4, %0, c0, c0, 5"::"r"(0xC0000000));
 }
 
 void saveVMState(struct cpuRegs_s *regs)
