@@ -22,64 +22,82 @@ struct vtimerx_s vtimer[4];
 
 struct vtimer_s vtimerctrl;
 
-void vtimerHandlerRead(unsigned int timer, unsigned int offset, unsigned int *destReg)
+void vtimerHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *destReg)
 {
 //	printh("vtimerHandlerRead\r\n");
-	if (timer == 0) {
-		switch (offset & 0x0F) {
-		case 0x4:
+	unsigned int timer = hdfar & 0x70;
+	unsigned int offset = hdfar & 0x0F;
+	if ((hdfar & 0xF00) == 0xC00) {
+	  //		printh("Reading timer\r\n");
+		if (timer == 0) {
+			switch (offset & 0x0F) {
+			case 0x4:
 //			printh("TIMER_STATUS %d\r\n", vtimerctrl.status);
-			*destReg = vtimerctrl.status;
-			break;
-		default:
-			*destReg = 0;
-			break;
+				*destReg = vtimerctrl.status;
+				break;
+			default:
+				*destReg = 0;
+				break;
+			}
+		} else {
+			switch (offset & 0x0F) {
+			case TIMER_CTRL:
+//			printh("TIMER_CTRL %d\r\n", timer);
+				*destReg = vtimer[timer].ctrl;
+				break;
+			case TIMER_INTRVL:
+//			printh("TIMER_INTRVL %d\r\n", timer);
+				*destReg = vtimer[timer].intrvl;
+				break;
+			case TIMER_CURVL:
+//			printh("TIMER_CURVL %d\r\n", timer);
+				*destReg = vtimer[timer].curval;
+				break;
+			}
 		}
 	} else {
-		switch (offset & 0x0F) {
-		case TIMER_CTRL:
-//			printh("TIMER_CTRL %d\r\n", timer);
-			*destReg = vtimer[timer].ctrl;
-			break;
-		case TIMER_INTRVL:
-//			printh("TIMER_INTRVL %d\r\n", timer);
-			*destReg = vtimer[timer].intrvl;
-			break;
-		case TIMER_CURVL:
-//			printh("TIMER_CURVL %d\r\n", timer);
-			*destReg = vtimer[timer].curval;
-			break;
-		}
+		unsigned int ptr = (hpfar << 8) | (hdfar & 0xFFF);
+		*destReg = *(unsigned int *)ptr;
+		//		printh("Reading ptr %d = %d\r\n", ptr, *destReg);
 	}
 }
 
-void vtimerHandlerWrite(unsigned int timer, unsigned int offset, unsigned int *srcReg)
+void vtimerHandlerWrite(unsigned int hdfar, unsigned int hpfar, unsigned int *srcReg)
 {
 //	printh("vtimerHandlerWrite\r\n");
-	if (timer == 0) {
-		switch (offset & 0x0F) {
-		case 0x4:
+	unsigned int timer = hdfar & 0x70;
+	unsigned int offset = hdfar & 0x0F;
+	if ((hdfar & 0xF00) == 0xC00) {
+	  //printh("Writing timer\r\n");
+		if (timer == 0) {
+			switch (offset & 0x0F) {
+			case 0x4:
 //			printh("TIMER_STATUS %d\r\n", *srcReg);
-			vtimerctrl.status = *srcReg;
-			break;
-		default:
-			break;
+				vtimerctrl.status = *srcReg;
+				break;
+			default:
+				break;
+			}
+		} else {
+			switch (offset & 0x0F) {
+			case TIMER_CTRL:
+//			printh("TIMER_CTRL %d\r\n", *srcReg);
+				vtimer[timer].ctrl = *srcReg;
+				break;
+			case TIMER_INTRVL:
+//			printh("TIMER_INTRVL %d\r\n", *srcReg);
+				vtimer[timer].intrvl = *srcReg;
+				break;
+			case TIMER_CURVL:
+//			printh("TIMER_CURVL %d\r\n", *srcReg);
+				vtimer[timer].curval = *srcReg;
+				break;
+			}
 		}
 	} else {
-		switch (offset & 0x0F) {
-		case TIMER_CTRL:
-//			printh("TIMER_CTRL %d\r\n", *srcReg);
-			vtimer[timer].ctrl = *srcReg;
-			break;
-		case TIMER_INTRVL:
-//			printh("TIMER_INTRVL %d\r\n", *srcReg);
-			vtimer[timer].intrvl = *srcReg;
-			break;
-		case TIMER_CURVL:
-//			printh("TIMER_CURVL %d\r\n", *srcReg);
-			vtimer[timer].curval = *srcReg;
-			break;
-		}
+		unsigned int ptr = (hpfar << 8) | (hdfar & 0xFFF);
+		//		printh("Writing ptr %d = %d\r\n", ptr, *srcReg);
+       		*((unsigned int *)ptr) = *srcReg;
 	}
 }
 
@@ -108,16 +126,18 @@ void vtimerHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar,
 
 		if (iss & (1 << 6)) {
 			/* write */
-			vtimerHandlerWrite((hdfar & 0x70) >> 4, hdfar & 0x0F, ptrToReg);
+			vtimerHandlerWrite(hdfar, hpfar, ptrToReg);
 		} else {
 			/* read */
-			vtimerHandlerRead((hdfar & 0x70) >> 4, hdfar & 0x0F, ptrToReg);
+			vtimerHandlerRead(hdfar, hpfar, ptrToReg);
 		}
 	} else {
 		printh("Fault does not hold a valid Instruction Syndrome, ignoring and bailing out\r\n");
 		return;
 	}
 }
+
+void print_regs(struct cpuRegs_s *regs);
 
 void vtimerVirtDeviceHandler(struct cpuRegs_s *regs)
 {

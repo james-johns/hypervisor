@@ -25,8 +25,25 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 
 	guest->stageOneTable = createPageTable();
 	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x1FF); /* base memory map */
-	mapMemoryToVM(guest, 0x01c28000, 0x01c28000, 0x1000, 0x1B1);   /* UART0 */
-	mapMemoryToVM(guest, 0x01c00000, 0x01c00000, 0x1000, 0x1B1);   /* SRAM config regs */
+	mapMemoryToVM(guest, 0x01c28000, 0x01c28000,  0x1000, 0x1B1);   /* UART0 */
+	mapMemoryToVM(guest, 0x01c00000, 0x01c00000,  0x1000, 0x1B1);   /* SRAM config regs */
+	mapMemoryToVM(guest, 0x01c01000, 0x01c01000,  0x1000, 0x1B1);   /* DRAM config regs */
+	mapMemoryToVM(guest, 0x01c02000, 0x01c02000,  0x1000, 0x1B1);   /* DMA config regs */
+	mapMemoryToVM(guest, 0x01c0a000, 0x01c0a000,  0x1000, 0x1B1);   /* TVE0 config regs */
+	mapMemoryToVM(guest, 0x01c0C000, 0x01c0C000,  0x2000, 0x1B1);   /* LCD config regs */
+	mapMemoryToVM(guest, 0x01c0F000, 0x01c0F000,  0x4000, 0x1B1);   /* MMC device regs */
+	mapMemoryToVM(guest, 0x01c13000, 0x01c13000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c14000, 0x01c14000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c16000, 0x01c16000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c1B000, 0x01c1B000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c1C000, 0x01c1C000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c18000, 0x01c18000,  0x1000, 0x1B1);   /* SATA config regs */
+	mapMemoryToVM(guest, 0x01c22000, 0x01c22000,  0x1000, 0x1B1);   /* PS2 config regs */
+	mapMemoryToVM(guest, 0x01c25000, 0x01c25000,  0x1000, 0x1B1);   /* PS2 config regs */
+	mapMemoryToVM(guest, 0x01c2a000, 0x01c2a000,  0x2000, 0x1B1);   /* PS2 config regs */
+	mapMemoryToVM(guest, 0x01c2c000, 0x01c2c000,  0x1000, 0x1B1);   /* PS2 config regs */
+	mapMemoryToVM(guest, 0x01e00000, 0x01e00000, 0x40000, 0x1B1);   /* DEFE config regs */
+	mapMemoryToVM(guest, 0x01e40000, 0x01e40000, 0x40000, 0x1B1);   /* DEBE config regs */
 	mapMemoryToVM(guest, (unsigned int)GICV(0), (unsigned int)GICC, 
 		0x1000, 0x1B1);   /* VGIC mappings */
 
