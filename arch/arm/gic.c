@@ -35,7 +35,7 @@ void init_gic_distributor() {
 	for (i = 32; i < lines; i += 16) {
 		GICD[GICD_ICFGR(i / 16)] = 0x0;
 	}
-	for (i = 32; i < lines; i += 16) {
+	for (i = 32; i < lines; i += 4) {
 		GICD[GICD_ITARGETSR(i / 4)] = 0x01010101;
 	}
 	for (i = 32; i < lines; i += 4) {
@@ -52,7 +52,7 @@ void init_gic_cpu() {
 	unsigned int i;
 	GICD[GICD_ICENABLER(0)] = 0xFFFF0000;
 	GICD[GICD_ISENABLER(0)] = 0x0000FFFF;
-	for (i = 0; i < 32; i += 4)
+	for (i = 0; i < 128; i += 4)
 		GICD[GICD_IPRIORITYR(i / 4)] = 0xa0a0a0a0;
 
 	GICC[GICC_PMR] = 0xff;
