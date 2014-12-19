@@ -31,8 +31,10 @@ void callVirtDeviceHandler(unsigned int address, struct cpuRegs_s *regs)
 	struct virtDeviceTuple_s *handler = orderedListFindItem(virtDevices, &tmp);
 	if (handler != NULL)
 		handler->handler(regs);
-	else
+	else {
 		printh("No registered handler for %d %d\r\n", address, handler);
+		while(1);
+	}
 }
 
 signed int virtDeviceOrderPredicate(void *l, void *r)
