@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <config.h>
 #include <printh.h>
@@ -12,6 +16,11 @@
 void install_hyp_vectors();
 void timer_interrupt();
 
+/**
+ * \fn init_irqs
+ *
+ * Initialise IRQs
+ */
 void init_irqs()
 {
 	install_hyp_vectors();
@@ -22,6 +31,11 @@ void init_irqs()
 	setHCR(0x00000038);
 }
 
+/**
+ * \fn print_regs
+ *
+ * Print CPU registers for debugging
+ */
 void print_regs(struct cpuRegs_s *regs)
 {
 	print_str("\r\nR0 : ");
@@ -63,30 +77,59 @@ void print_regs(struct cpuRegs_s *regs)
 	print_str("\r\n\r\n");
 }
 
+/**
+ * \fn handle_trap_undefined_instruction(struct cpuRegs_s *regs)
+ *
+ * Handle undefined instruction trap
+ */
 void handle_trap_undefined_instruction(struct cpuRegs_s *regs)
 {
 	print_str("\r\nUndefine Instruction Trap");
 	print_regs(regs);
+	while(1);
 }
 
+/**
+ * \fn handle_trap_supervisor_call(struct cpuRegs_s *regs)
+ *
+ * Handle supervisor call trap
+ */
 void handle_trap_supervisor_call(struct cpuRegs_s *regs)
 {
 	print_str("\r\nSupervisor Call Trap");
 	print_regs(regs);
+	while(1);
 }
 
+/**
+ * \fn handle_trap_prefetch_abort(struct cpuRegs_s *regs)
+ *
+ * Handle prefetch abort trap
+ */
 void handle_trap_prefetch_abort(struct cpuRegs_s *regs)
 {
 	print_str("\r\nPrefetch Abort Trap");
 	print_regs(regs);
+	while(1);
 }
 
+/**
+ * \fn handle_trap_data_abort(struct cpuRegs_s *regs)
+ *
+ * Handle data abort trap
+ */
 void handle_trap_data_abort(struct cpuRegs_s *regs)
 {
 	print_str("\r\nData Abort Trap");
 	print_regs(regs);
+	while(1);
 }
 
+/**
+ * \fn handle_trap_hyp_call(struct cpuRegs_s *regs)
+ *
+ * Handle hyp call trap
+ */
 void handle_trap_hyp_call(struct cpuRegs_s *regs)
 {
 	unsigned int hpfar, hsr;
@@ -108,6 +151,11 @@ void handle_trap_hyp_call(struct cpuRegs_s *regs)
 	}
 }
 
+/**
+ * \fn handle_trap_irq(struct cpuRegs_s *regs)
+ *
+ * Handle IRQ trap
+ */
 void handle_trap_irq(struct cpuRegs_s *regs)
 {
 	unsigned int interrupt = GICC[GICC_IAR];
@@ -118,8 +166,14 @@ void handle_trap_irq(struct cpuRegs_s *regs)
 	GICC[GICC_EOIR] = interrupt;	// end of interrupt
 }
 
+/**
+ * \fn handle_trap_fiq(struct cpuRegs_s *regs)
+ *
+ * Handle fast IRQ trap
+ */
 void handle_trap_fiq(struct cpuRegs_s *regs)
 {
 	print_str("\r\nFIQ Trap");
 	print_regs(regs);
+	while(1);
 }

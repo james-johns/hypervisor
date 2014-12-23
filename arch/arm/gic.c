@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <config.h>
 #include <gic.h>
@@ -6,7 +10,11 @@
 #include <irq.h>
 #include <virtdevice.h>
 
-
+/**
+ * \fn printGICHypState
+ *
+ * Print GICH state.
+ */
 void printGICHypState()
 {
 	printh("GICH_HCR: %d\r\n", GICH[GICH_HCR]);
@@ -19,12 +27,25 @@ void printGICHypState()
 	printh("GICH_APR: %d\r\n", GICH[GICH_APR]);
 }
 
+/**
+ * \fn enable_irq(unsigned int irqn)
+ *
+ * Enable IRQ in GICD, setting target CPU to cpu0 and priority to 0xa0
+ */
 void enable_irq(unsigned int irqn) {
 	GICD[GICD_ISENABLER(irqn / 32)] = 1 << (irqn % 32);
 	GICD[GICD_ITARGETSR(irqn / 4)] |= (0x01 << ((irqn % 4) * 8));
 	GICD[GICD_IPRIORITYR(irqn / 4)] |= (0xa0 << ((irqn % 4) * 8));
 }
 
+/**
+ * \fn init_gic_distributor
+ *
+ * Initialise GIC Dirstributor.
+ *
+ * Configure all IRQs to be active low, level sensitive, target cpu0,
+ * priority 0xa0 and disable all interrupts.
+ */
 void init_gic_distributor() {
 	GICD[GICD_CTLR] = 0x0;	// disable GIC
 
@@ -48,6 +69,11 @@ void init_gic_distributor() {
 	GICD[GICD_CTLR] = 0x01;
 }
 
+/**
+ * \fn init_gic_cpu
+ *
+ * Initialise GIC CPU interface
+ */
 void init_gic_cpu() {
 	unsigned int i;
 	GICD[GICD_ICENABLER(0)] = 0xFFFF0000;
@@ -60,6 +86,11 @@ void init_gic_cpu() {
 	GICC[GICC_CTLR] = 0x201;
 }
 
+/**
+ * \fn init_gic
+ *
+ * Initialise GIC
+ */
 void init_gic() {
 	initIRQHandlers();
 	init_gic_distributor();

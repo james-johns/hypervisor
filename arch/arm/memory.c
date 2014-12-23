@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <config.h>
 #include <memory.h>
@@ -11,6 +15,11 @@
 // page tables have LPAE_ENTRIES number of entries, therefore 
 struct pageTable_s *hypPageTable;
 
+/**
+ * \fn memcpy(void *source, void *dest, unsigned int size)
+ *
+ * Copy size bytes of memory from source to dest.
+ */
 void memcpy(void *source, void *dest, unsigned int size)
 {
 	unsigned int i;
@@ -19,6 +28,11 @@ void memcpy(void *source, void *dest, unsigned int size)
 	}
 }
 
+/**
+ * \fn init_mmu
+ *
+ * Initialise MMU, create page tables and load them into HTTBR
+ */
 void init_mmu()
 {
 	hypPageTable = createPageTable();
