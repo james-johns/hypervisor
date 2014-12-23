@@ -1,9 +1,18 @@
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <printh.h>
 #include <types.h>
 #include <malloc.h>
 #include <orderedList.h>
 
+/**
+ * \fn createOrderedList(unsigned int maxSize, orderPredicate_t predicate)
+ *
+ * Create an ordered list of maximum length maxSize, using predicate to sort entries.
+ */
 struct orderedList_s *createOrderedList(unsigned int maxSize, orderPredicate_t predicate)
 {
 	struct orderedList_s *toRet = malloc(sizeof(struct orderedList_s));
@@ -14,6 +23,11 @@ struct orderedList_s *createOrderedList(unsigned int maxSize, orderPredicate_t p
 	return toRet;
 }
 
+/**
+ * \fn orderedListInsertItem(struct orderedList_s *list, void *item)
+ *
+ * Insert item into list.
+ */
 void orderedListInsertItem(struct orderedList_s *list, void *item)
 {
 	unsigned int i = 0;
@@ -33,6 +47,11 @@ void orderedListInsertItem(struct orderedList_s *list, void *item)
 	list->allocated++;
 }
 
+/**
+ * \fn orderedListGetItem(struct orderedList_s *list, unsigned int index)
+ *
+ * Return item at index in list
+ */
 void *orderedListGetItem(struct orderedList_s *list, unsigned int index)
 {
 	if (index >= list->allocated)
@@ -40,6 +59,14 @@ void *orderedListGetItem(struct orderedList_s *list, unsigned int index)
 	return list->array[index];
 }
 
+/**
+ * \fn orderedListFindItem(struct orderedList_s *list, void *item)
+ *
+ * Return entry in list at the same position item would be if entered into list.
+ *
+ * item need only be unique enough for the predicate used by the list object to compare
+ * with each entry in the list.
+ */
 void *orderedListFindItem(struct orderedList_s *list, void *item)
 {
 	unsigned int i = 0;

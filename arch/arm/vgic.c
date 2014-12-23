@@ -1,4 +1,7 @@
-
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <config.h>
 #include <cpu.h>
@@ -14,11 +17,21 @@ struct hfarRegs_s {
 
 void printGICHypState();
 
+/**
+ * \fn setVGIC(struct vgic_s *vgic)
+ *
+ * Restore VGIC state
+ */
 void setVGIC(struct vgic_s *vgic)
 {
 	GICH[GICH_HCR] = vgic->ctlr;
 }
 
+/**
+ * \fn vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset, unsigned int *destReg)
+ *
+ * Handle read of VGIC Distributor virtual device.
+ */
 void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset, 
 			unsigned int *destReg)
 {
@@ -43,6 +56,11 @@ void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset,
 	}
 }
 
+/**
+ * \fn vgicHandlerDistWrite(struct guestVM_s *guest, unsigned int distOffset, unsigned int *srcReg)
+ *
+ * Handle write to VGIC Distributor virtual device.
+ */
 void vgicHandlerDistWrite(struct guestVM_s *guest, unsigned int distOffset, 
 			unsigned int *srcReg)
 {
@@ -78,6 +96,11 @@ void vgicHandlerDistWrite(struct guestVM_s *guest, unsigned int distOffset,
 	}
 }
 
+/**
+ * \fn vgicHandlerDist(struct hfarRegs_s *hfar, struct cpuRegs_s *regs)
+ *
+ * Handle VGIC Distributor virtual device access.
+ */
 void vgicHandlerDist(struct hfarRegs_s *hfar, struct cpuRegs_s *regs)
 {
 	unsigned int regInUse;
@@ -112,9 +135,17 @@ void vgicHandlerDist(struct hfarRegs_s *hfar, struct cpuRegs_s *regs)
 //	printGICHypState();
 }
 
-void vgicHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar, 
-		struct cpuRegs_s *regs)
+/**
+ * \fn vgicVirtDeviceHandler(struct cpuRegs_s *regs)
+ *
+ * Handle VGIC virtual device access
+ */
+void vgicVirtDeviceHandler(struct cpuRegs_s *regs)
 {
+	unsigned int hdfar, hpfar, hsr;
+	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);
+	asm volatile("mrc p15, 4, %0, c6, c0, 0":"=r"(hdfar):);
+	asm volatile("mrc p15, 4, %0, c6, c0, 4":"=r"(hpfar):);
 	struct hfarRegs_s hfar;
 	hfar.hsr = hsr;
 	hfar.hpfar = hpfar;
@@ -123,15 +154,11 @@ void vgicHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar,
 		vgicHandlerDist(&hfar, regs);
 }
 
-void vgicVirtDeviceHandler(struct cpuRegs_s *regs)
-{
-	unsigned int hdfar, hpfar, hsr;
-	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);
-	asm volatile("mrc p15, 4, %0, c6, c0, 0":"=r"(hdfar):);
-	asm volatile("mrc p15, 4, %0, c6, c0, 4":"=r"(hpfar):);
-	vgicHandler(hsr, hpfar, hdfar, regs);
-}
-
+/**
+ * \fn triggerVIRQ(unsigned int irqNum)
+ *
+ * Send virtual IRQ to VM via GICH interface
+ */
 void triggerVIRQ(unsigned int irqNum)
 {
 	struct guestVM_s *guest = getCurrentVM();

@@ -1,3 +1,9 @@
+/**
+ * \file
+ * \author James Johns
+ *
+ * Provide methods for simple debugging via text output on UART
+ */
 
 #include <va_arg.h>
 #include <printh.h>
@@ -8,6 +14,14 @@
 
 #define STATUS_Tx_EMPTY (1 << 5)
 
+/**
+ * \fn printh_format(const char c, va_list *args)
+ * \param[in] c Format code character
+ * \param[in] args Variable arguments list
+ * \brief Convenience method for printh
+ *
+ * Used by printh to acheive formatted output.
+ */
 void printh_format(const char c, va_list *args)
 {
 	switch (c) {
@@ -20,6 +34,13 @@ void printh_format(const char c, va_list *args)
 	}
 }
 
+/**
+ * \fn printh(const char *fmt, ...)
+ *
+ * Similar to printf/printk, printh allows formatted output via
+ * inline escape codes in the given string. Each escape code requires
+ * an additional argument to be passed.
+ */
 void printh(const char *fmt, ...)
 {
 	va_list args;
@@ -39,6 +60,12 @@ void printh(const char *fmt, ...)
 	va_end(args);
 }
 
+/**
+ * \fn print_str(const char *str)
+ *
+ * Convenience method for outputting multi-character strings.
+ * Uses putc.
+ */
 void print_str(const char *str)
 {
 	int i;
@@ -47,6 +74,12 @@ void print_str(const char *str)
 	}
 }
 
+/**
+ * \fn print_hex(unsigned int value)
+ *
+ * Output a formatted HEX value on the default UART.
+ * String will begin with '0x'
+ */
 void print_hex(unsigned int value)
 {
 	signed int i;
@@ -61,6 +94,12 @@ void print_hex(unsigned int value)
 	}
 }
 
+/**
+ * \fn putc(char c)
+ * \param c Character to output
+ * 
+ * Output a single character on the default UART
+ */
 void putc(char c)
 {
 	// wait for Tx to empty before outputting next character

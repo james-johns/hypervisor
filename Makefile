@@ -32,7 +32,7 @@ include main/Makefile
 include lib/Makefile
 include tests/Makefile
 
-.PHONY: all clean distclean hypervisor TAGS
+.PHONY: all clean distclean hypervisor TAGS FORCE
 
 default: uImage
 
@@ -65,7 +65,9 @@ uImage: hypervisor
 	$(Q)$(CROSS_COMPILE)objcopy -O binary hypervisor hypervisor.bin
 	$(Q)mkimage -A $(ARCH) -T kernel -C none -a 0x40008000 -d hypervisor.bin uImage
 
-
+docs: FORCE
+	$(Q)mkdir docs/
+	$(Q)doxygen doxyfile
 
 ###
 # Build templates
