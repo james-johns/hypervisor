@@ -44,6 +44,9 @@ void init_gic_distributor() {
 	for (i = 32; i < lines; i += 32) {
 		GICD[GICD_ICENABLER(i / 32)] = 0xFFFFFFFF;
 	}
+	for (i = 32; i < lines; i += 32) {
+	  GICD[GICD_IGROUPR(i / 32)] = 0x0;
+	}
 
 	GICD[GICD_CTLR] = 0x01;
 }
