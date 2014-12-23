@@ -11,6 +11,7 @@
 
 void init_irqs();
 void init_timer();
+void init_pio();
 
 extern struct guestVM_s *nextScheduledVM;
 
@@ -25,6 +26,7 @@ void hyp_main()
 	init_irqs();
 	init_scheduler();
 	init_timer();
+	init_pio();
 
 	init_mmu();
 

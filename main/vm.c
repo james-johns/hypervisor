@@ -40,18 +40,19 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	mapMemoryToVM(guest, 0x01c0a000, 0x01c0a000,  0x1000, 0x1B1);   /* TVE0 config regs */
 	mapMemoryToVM(guest, 0x01c0C000, 0x01c0C000,  0x2000, 0x1B1);   /* LCD config regs */
 	mapMemoryToVM(guest, 0x01c0F000, 0x01c0F000,  0x4000, 0x1B1);   /* MMC device regs */
-	mapMemoryToVM(guest, 0x01c13000, 0x01c13000,  0x1000, 0x1B1);   /* USB config regs */
-	mapMemoryToVM(guest, 0x01c14000, 0x01c14000,  0x1000, 0x1B1);   /* USB config regs */
-	mapMemoryToVM(guest, 0x01c16000, 0x01c16000,  0x1000, 0x1B1);   /* USB config regs */
-	mapMemoryToVM(guest, 0x01c1B000, 0x01c1B000,  0x1000, 0x1B1);   /* USB config regs */
-	mapMemoryToVM(guest, 0x01c1C000, 0x01c1C000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c13000, 0x01c13000,  0x1000, 0x1B1);   /* USB0 config regs */
+	mapMemoryToVM(guest, 0x01c14000, 0x01c14000,  0x1000, 0x1B1);   /* USB1 config regs */
+	mapMemoryToVM(guest, 0x01c16000, 0x01c16000,  0x1000, 0x1B1);   /* HDMI config regs */
+	mapMemoryToVM(guest, 0x01c1B000, 0x01c1B000,  0x1000, 0x1B1);   /* TVE config regs */
+	mapMemoryToVM(guest, 0x01c1C000, 0x01c1C000,  0x1000, 0x1B1);   /* USB2 config regs */
 	mapMemoryToVM(guest, 0x01c18000, 0x01c18000,  0x1000, 0x1B1);   /* SATA config regs */
-	mapMemoryToVM(guest, 0x01c22000, 0x01c22000,  0x1000, 0x1B1);   /* PS2 config regs */
-	mapMemoryToVM(guest, 0x01c25000, 0x01c25000,  0x1000, 0x1B1);   /* PS2 config regs */
+//	mapMemoryToVM(guest, 0x01c20000, 0x01c20000,  0x1000, 0x1B1);   /* PIO Config regs */
+	mapMemoryToVM(guest, 0x01c22000, 0x01c22000,  0x1000, 0x1B1);   /* IIS1 config regs */
+	mapMemoryToVM(guest, 0x01c25000, 0x01c25000,  0x3000, 0x1B1);   /* CPU config regs */
 	mapMemoryToVM(guest, 0x01c2a000, 0x01c2a000,  0x2000, 0x1B1);   /* PS2 config regs */
-	mapMemoryToVM(guest, 0x01c2c000, 0x01c2c000,  0x1000, 0x1B1);   /* PS2 config regs */
-	mapMemoryToVM(guest, 0x01c50000, 0x01c50000, 0x10000, 0x1B1);   /* USB config regs */
-	mapMemoryToVM(guest, 0x01c60000, 0x01c60000,  0x1000, 0x1B1);   /* USB config regs */
+	mapMemoryToVM(guest, 0x01c2c000, 0x01c2c000,  0x1000, 0x1B1);   /* TWI4 config regs */
+	mapMemoryToVM(guest, 0x01c50000, 0x01c50000, 0x10000, 0x1B1);   /* GMAC config regs */
+	mapMemoryToVM(guest, 0x01c60000, 0x01c60000,  0x1000, 0x1B1);   /* HSTIMER config regs */
 	mapMemoryToVM(guest, 0x01e00000, 0x01e00000, 0x40000, 0x1B1);   /* DEFE config regs */
 	mapMemoryToVM(guest, 0x01e40000, 0x01e40000, 0x40000, 0x1B1);   /* DEBE config regs */
 	mapMemoryToVM(guest, (unsigned int)GICV(0), (unsigned int)GICC, 
