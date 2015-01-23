@@ -55,12 +55,8 @@ void init_timer()
 
 void print_timer_value()
 {
-	print_str("\r\nTimer value:");
-	print_hex(TIMER2_CUR_INTRVL);
-	print_str("      Status: ");
-	print_hex(TIMER_IRQ_STATUS);
-	print_str("\r\nTimer IRQ en:");
-	print_hex(TIMER_IRQ_EN);
+	printh("\r\nTimer value: %d     Status: %d", TIMER2_CUR_INTRVL, TIMER_IRQ_STATUS);
+	printh("\r\nTimer IRQ en:", TIMER_IRQ_EN);
 }
 extern struct vtimer_s vtimerctrl;
 extern struct vtimerx_s vtimer[4];

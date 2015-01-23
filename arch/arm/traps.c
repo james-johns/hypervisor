@@ -65,25 +65,25 @@ void print_regs(struct cpuRegs_s *regs)
 
 void handle_trap_undefined_instruction(struct cpuRegs_s *regs)
 {
-	print_str("\r\nUndefine Instruction Trap");
+	printh("\r\nUndefine Instruction Trap");
 	print_regs(regs);
 }
 
 void handle_trap_supervisor_call(struct cpuRegs_s *regs)
 {
-	print_str("\r\nSupervisor Call Trap");
+	printh("\r\nSupervisor Call Trap");
 	print_regs(regs);
 }
 
 void handle_trap_prefetch_abort(struct cpuRegs_s *regs)
 {
-	print_str("\r\nPrefetch Abort Trap");
+	printh("\r\nPrefetch Abort Trap");
 	print_regs(regs);
 }
 
 void handle_trap_data_abort(struct cpuRegs_s *regs)
 {
-	print_str("\r\nData Abort Trap");
+	printh("\r\nData Abort Trap");
 	print_regs(regs);
 }
 
@@ -120,6 +120,6 @@ void handle_trap_irq(struct cpuRegs_s *regs)
 
 void handle_trap_fiq(struct cpuRegs_s *regs)
 {
-	print_str("\r\nFIQ Trap");
+	printh("\r\nFIQ Trap");
 	print_regs(regs);
 }
