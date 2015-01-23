@@ -29,7 +29,7 @@ void hyp_main()
 {
 	_end = (unsigned int) &_end;
 	malloc(0x10);
-	print_str("Starting hyp main\r\n");
+	printh("Starting hyp main\r\n");
 
 	initVirtDevice();
 
@@ -52,7 +52,7 @@ void hyp_main()
 	enableIRQS();
 
 
-	print_str("\r\nHalting!");
+	printh("\r\nHalting!");
 	while (1) {
 		//    asm volatile("wfe"::);
 	}

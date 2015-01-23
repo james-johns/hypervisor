@@ -28,6 +28,12 @@ void printh_format(const char c, va_list *args)
 	case 'd':
 		print_hex(va_arg(*args, int));
 		break;
+	case 's':
+		print_str(va_arg(*args, const char *));
+		break;
+	case 'c':
+		putc(va_arg(*args, char));
+		break;
 	default:
 		print_str("~~ Error in printh_format ~~");
 		break;
