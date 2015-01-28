@@ -14,16 +14,17 @@ struct vtty_s vtty;
 
 void vttyHandlerWrite(unsigned int off, unsigned int *srcReg)
 {
-	printh("vttyHandlerWrite\r\n");
+//	printh("vttyHandlerWrite\r\n");
 	switch (off) {
 	case 0:
-		vtty.buffer[vtty.end++] = *srcReg;
+		srcReg = srcReg;
+//		vtty.buffer[vtty.end++] = *srcReg;
 		*((unsigned int *)0x01c28000) = *srcReg;
 		break;
 	default:
 		break;
 	}
-
+/*
 	if (*srcReg == '\n') {
 		vtty.buffer[vtty.end] = '\0';
 		vtty.end = 0;
@@ -33,7 +34,8 @@ void vttyHandlerWrite(unsigned int off, unsigned int *srcReg)
 	}
 
 	if (vtty.end == 0)
-		printh(vtty.buffer);
+	printh("%s", vtty.buffer);*/
+	
 }
 
 void vttyHandlerRead(unsigned int off, unsigned int *destReg)
@@ -56,7 +58,7 @@ void vttyHandlerRead(unsigned int off, unsigned int *destReg)
 		*destReg = *((unsigned int *)0x01c2800C);
 		break;*/
 	default:
-		printh("default\r\n");
+//		printh("default %d\r\n", off);
 		*destReg = *((unsigned int *)(0x01c28000 + off));
 		break;
 	}
@@ -66,8 +68,8 @@ void print_regs(struct cpuRegs_s *regs);
 
 void vttyHandler(struct cpuRegs_s *regs)
 {
-	printh("vttyHandler\r\n");
-	print_regs(regs);
+//	printh("vttyHandler\r\n");
+//	print_regs(regs);
 	unsigned int hdfar, hpfar, hsr;
 	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);
 	asm volatile("mrc p15, 4, %0, c6, c0, 0":"=r"(hdfar):);

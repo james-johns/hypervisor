@@ -33,7 +33,7 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	guest->stageOneTable = createPageTable();
 	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x1FF); /* base memory map */
 	mapMemoryToVM(guest, 0x00000000, 0x00000000, 0x10000, 0x1B1);   /* SRAM */
-	mapMemoryToVM(guest, 0x01c28000, 0x01c28000,  0x1000, 0x1B1);   /* UART0 */
+//	mapMemoryToVM(guest, 0x01c28000, 0x01c28000,  0x1000, 0x1B1);   /* UART0 */
 	mapMemoryToVM(guest, 0x01c00000, 0x01c00000,  0x1000, 0x1B1);   /* SRAM config regs */
 	mapMemoryToVM(guest, 0x01c01000, 0x01c01000,  0x1000, 0x1B1);   /* DRAM config regs */
 	mapMemoryToVM(guest, 0x01c02000, 0x01c02000,  0x1000, 0x1B1);   /* DMA config regs */
