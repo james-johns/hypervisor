@@ -58,6 +58,8 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	mapMemoryToVM(guest, (unsigned int)GICV(0), (unsigned int)GICC, 
 		0x1000, 0x1B1);   /* VGIC mappings */
 
+	printPageTable(guest->stageOneTable, 0x0, 1);
+
 	guest->regs.pc = (0x40008000);
 	guest->regs.cpsr = 0x00000013;
 	guest->regs.r0 = 0;
