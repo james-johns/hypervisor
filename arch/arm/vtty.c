@@ -1,40 +1,37 @@
 
 #include <cpu.h>
 #include <printh.h>
+#include <schedule.h>
 #include <virtdevice.h>
+#include <vtty.h>
 
-
-#define VTTY_BUFFER_SIZE 1024
-struct vtty_s {
-	unsigned int end;
-	char buffer[VTTY_BUFFER_SIZE];
-};
-
-struct vtty_s vtty;
 
 void vttyHandlerWrite(unsigned int off, unsigned int *srcReg)
 {
 //	printh("vttyHandlerWrite\r\n");
+	struct vtty_s vtty = getCurrentVM()->vtty;
+
 	switch (off) {
 	case 0:
 		srcReg = srcReg;
-//		vtty.buffer[vtty.end++] = *srcReg;
-		*((unsigned int *)0x01c28000) = *srcReg;
+		vtty.buffer[vtty.end++] = *srcReg;
+		if (*srcReg == '\n') {
+			vtty.buffer[vtty.end] = '\0';
+			vtty.end = 0;
+		} else if (vtty.end >= (VTTY_BUFFER_SIZE - 1)) {
+			vtty.buffer[VTTY_BUFFER_SIZE - 1] = '\0';
+			vtty.end = 0;
+		}
+//		*((unsigned int *)0x01c28000) = *srcReg;
 		break;
 	default:
 		break;
 	}
-/*
-	if (*srcReg == '\n') {
-		vtty.buffer[vtty.end] = '\0';
-		vtty.end = 0;
-	} else if (vtty.end >= (VTTY_BUFFER_SIZE - 1)) {
-		vtty.buffer[VTTY_BUFFER_SIZE - 1] = '\0';
-		vtty.end = 0;
-	}
 
-	if (vtty.end == 0)
-	printh("%s", vtty.buffer);*/
+	if (vtty.end == 0 && vtty.buffer[0] != '\0') {
+		printh("%s", vtty.buffer);
+		vtty.buffer[0] = '\0';
+	}
 	
 }
 
@@ -101,7 +98,6 @@ void vttyHandler(struct cpuRegs_s *regs)
 
 void vttyInit()
 {
-	vtty.end = 0;
 	registerVirtDeviceHandler(0x01c28000, vttyHandler);
 }
 
