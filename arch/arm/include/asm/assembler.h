@@ -15,17 +15,19 @@
 
 #ifndef SAVE_REGS
 #define SAVE_REGS 				\
-	sub sp, #20;				\
+	sub sp, #24;				\
 	push {r0-r12};				\
 	mrs r11, ELR_hyp;			\
 	str r11, [sp, #52];			\
 	mrs r11, spsr;				\
 	str r11, [sp, #56];			\
-	str lr, [sp, #60];			\
+	mrs r11, SPSR_svc;			\
+	str r11, [sp, #60];			\
+	str lr, [sp, #64];			\
 	mrs r11, SP_usr;			\
-	str r11, [sp, #64];			\
+	str r11, [sp, #68];			\
 	mrs r11, lr_svc;			\
-	str r11, [sp, #68];
+	str r11, [sp, #72];
 #endif
 
 #ifndef RESTORE_REGS
@@ -33,14 +35,16 @@
 	ldr r11, [sp, #52];			\
 	msr ELR_hyp, r11;			\
 	ldr r11, [sp, #56];			\
-	msr SPSR_hyp, r11;			\
+	msr spsr, r11;				\
 	ldr lr, [sp, #60];			\
-	ldr r11, [sp, #64];			\
-	msr SP_usr, r11;			\
+	msr SPSR_svc, r11;			\
+	ldr lr, [sp, #64];			\
 	ldr r11, [sp, #68];			\
+	msr SP_usr, r11;			\
+	ldr r11, [sp, #72];			\
 	msr lr_svc, r11;			\
 	pop {r0-r12};				\
-	add sp, #20;
+	add sp, #24;
 #endif
 
 #endif
