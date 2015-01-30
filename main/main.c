@@ -32,7 +32,7 @@ void hyp_main()
 
 	init_mmu();
 
-	struct guestVM_s *guest = createVM(0x48000000, 0x20000000);
+	struct guestVM_s *guest = createVM("ONE", 0x48000000, 0x20000000);
 
 	printh("Created guest (%d)\r\n", guest);
 

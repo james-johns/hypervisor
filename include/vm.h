@@ -12,8 +12,9 @@ struct guestVM_s {
 	struct pageTable_s *stageOneTable;
 	struct vgic_s vgic;
 	struct vtty_s vtty;
+	const char *name;
 };
 
-struct guestVM_s *createVM(unsigned int kernelAddr, unsigned int memorySize);
+struct guestVM_s *createVM(const char *name, unsigned int kernelAddr, unsigned int memorySize);
 
 #endif

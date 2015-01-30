@@ -9,7 +9,8 @@
 void vttyHandlerWrite(unsigned int off, unsigned int *srcReg)
 {
 //	printh("vttyHandlerWrite\r\n");
-	struct vtty_s vtty = getCurrentVM()->vtty;
+	struct guestVM_s *vm = getCurrentVM();
+	struct vtty_s vtty = vm->vtty;
 
 	switch (off) {
 	case 0:
@@ -29,7 +30,7 @@ void vttyHandlerWrite(unsigned int off, unsigned int *srcReg)
 	}
 
 	if (vtty.end == 0 && vtty.buffer[0] != '\0') {
-		printh("%s", vtty.buffer);
+		printh("\r[%s] %s", vm->name, &vtty.buffer[1]);
 		vtty.buffer[0] = '\0';
 	}
 	
@@ -65,7 +66,7 @@ void print_regs(struct cpuRegs_s *regs);
 
 void vttyHandler(struct cpuRegs_s *regs)
 {
-//	printh("vttyHandler\r\n");
+//	printh("vtty\r\n");
 //	print_regs(regs);
 	unsigned int hdfar, hpfar, hsr;
 	asm volatile("mrc p15, 4, %0, c5, c2, 0":"=r"(hsr):);

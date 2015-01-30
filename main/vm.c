@@ -25,9 +25,10 @@ void dummyIRQHandler(struct cpuRegs_s *regs)
 
 /* baseAddr is the base address of RAM to be assigned to VM. 
  * Kernel must be placed 32KiB into this section of RAM.  */
-struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
+struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int memorySize)
 {
 	struct guestVM_s *guest = malloc(sizeof(struct guestVM_s));
+	guest->name = name;
 
 //	registerIRQHandler(0x1B, dummyIRQHandler);
 	guest->stageOneTable = createPageTable();
@@ -58,7 +59,7 @@ struct guestVM_s *createVM(unsigned int baseAddr, unsigned int memorySize)
 	mapMemoryToVM(guest, (unsigned int)GICV(0), (unsigned int)GICC, 
 		0x1000, 0x1B1);   /* VGIC mappings */
 
-	printPageTable(guest->stageOneTable, 0x0, 1);
+//	printPageTable(guest->stageOneTable, 0x0, 1);
 
 	guest->regs.pc = (0x40008000);
 	guest->regs.cpsr = 0x00000013;
