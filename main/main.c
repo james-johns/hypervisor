@@ -28,7 +28,6 @@ void hyp_main()
 	init_scheduler();
 	init_timer();
 	init_pio();
-	vttyInit();
 
 	init_mmu();
 

@@ -97,8 +97,19 @@ void vttyHandler(struct cpuRegs_s *regs)
 	}
 }
 
-void vttyInit()
+void vttyInit(unsigned int *address)
 {
-	registerVirtDeviceHandler(0x01c28000, vttyHandler);
+	registerVirtDeviceHandler((unsigned int)address, vttyHandler);
+	address[0] = 0x00;
+	address[1] = 0x00;
+	address[2] = 0x01;
+	address[3] = 0x00;
+	address[4] = 0x00;
+	address[5] = 0x60;
+	address[6] = 0x00;
+	address[7] = 0x00;
+	address[19] = 0x06;
+	address[20] = 0x00;
+	address[21] = 0x00;
 }
 

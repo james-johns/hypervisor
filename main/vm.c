@@ -7,6 +7,8 @@
 #include <config.h>
 #include <gic.h>
 #include <irq.h>
+#include <virtdevice.h>
+#include <vtty.h>
 
 void print_regs(struct cpuRegs_s *regs);
 
@@ -61,6 +63,11 @@ struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int
 
 //	printPageTable(guest->stageOneTable, 0x0, 1);
 
+	guest->vcpu.vtty.guestPage = malloc_aligned(0x1000, 0x1000);
+	memcpy((void *)0x01c28000, guest->vcpu.vtty.guestPage, 0x400);
+	mapMemoryToVM(guest, (unsigned int)guest->vcpu.vtty.guestPage, 0x01c28000, 0x1000, 0x191);
+	vttyInit(guest->vcpu.vtty.guestPage);
+
 	memset(&guest->vcpu.regs, 0, sizeof(struct cpuRegs_s));
 
 	guest->vcpu.regs.pc = (0x40008000);
@@ -77,7 +84,7 @@ struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int
 	memset(&guest->vcpu.vgic.lr, 0, sizeof(unsigned int)*guest->vcpu.vgic.lr_lines);
 
 	memset(&guest->vcpu.coproc15, 0, sizeof(struct cp15_s));
-	
+
 	printh("New Guest Regs:\r\n");
 	print_regs(&(guest->vcpu.regs));
 	return guest;

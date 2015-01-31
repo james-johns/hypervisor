@@ -7,7 +7,11 @@
 struct vtty_s {
 	unsigned int end;
 	char buffer[VTTY_BUFFER_SIZE];
+	unsigned int *guestPage;
 };
+
+void vttyHandler(struct cpuRegs_s *regs);
+void vttyInit();
 
 
 #endif
