@@ -21,13 +21,14 @@ struct pageTable_s {
 void setHTTBR(unsigned int lo, unsigned int hi);
 void setMAIR0VAL(unsigned int val);
 void setMAIR1VAL(unsigned int val);
-void setGuestTTBR(unsigned int tableAddr);
+void setGuestTTBR(unsigned int tableAddr, unsigned int VMID);
 void setVTCR(unsigned int vtcr);
 unsigned int getVTCR();
 void setHCR(unsigned int vtcr);
 unsigned int getHCR();
 void enableMMU();
 void memcpy(void *source, void *dest, unsigned int size);
+void memset(void *dest, unsigned char value, unsigned int size);
 
 void init_mmu();
 

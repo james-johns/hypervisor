@@ -68,13 +68,16 @@ void timer_interrupt(struct cpuRegs_s *regs)
 	TIMER_IRQ_STATUS |= 0x04;
 	TIMER_IRQ_EN = 0x04;
 	TIMER2_CTRL |= 0x01;
-//	print_str("Tick\r\n");
+//	printh("Tick %d\r\n", count);
 
 	triggerVIRQ(54 + (count % 2));
 	vtimerctrl.status |= 0x07;
 	for (i = 0; i < 4; i++) {
 		vtimer[i].curval = TIMERx_BASE(i)[TIMER_CURVL];
 	}
-	schedule(regs);
+	if (count > 5) {
+		schedule(regs);
+		count = 0;
+	}
 	count++;
 }

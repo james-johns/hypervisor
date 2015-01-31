@@ -10,7 +10,7 @@ void vttyHandlerWrite(unsigned int off, unsigned int *srcReg)
 {
 //	printh("vttyHandlerWrite\r\n");
 	struct guestVM_s *vm = getCurrentVM();
-	struct vtty_s vtty = vm->vtty;
+	struct vtty_s vtty = vm->vcpu.vtty;
 
 	switch (off) {
 	case 0:

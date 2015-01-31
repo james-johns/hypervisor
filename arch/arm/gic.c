@@ -19,13 +19,15 @@ void printGICHypState()
 	printh("GICH_APR: %d\r\n", GICH[GICH_APR]);
 }
 
-void enable_irq(unsigned int irqn) {
+void enable_irq(unsigned int irqn)
+{
 	GICD[GICD_ISENABLER(irqn / 32)] = 1 << (irqn % 32);
 	GICD[GICD_ITARGETSR(irqn / 4)] |= (0x01 << ((irqn % 4) * 8));
 	GICD[GICD_IPRIORITYR(irqn / 4)] |= (0xa0 << ((irqn % 4) * 8));
 }
 
-void init_gic_distributor() {
+void init_gic_distributor()
+{
 	GICD[GICD_CTLR] = 0x0;	// disable GIC
 
 	unsigned int typer = GICD[GICD_TYPER];
@@ -51,7 +53,8 @@ void init_gic_distributor() {
 	GICD[GICD_CTLR] = 0x01;
 }
 
-void init_gic_cpu() {
+void init_gic_cpu()
+{
 	unsigned int i;
 	GICD[GICD_ICENABLER(0)] = 0xFFFF0000;
 	GICD[GICD_ISENABLER(0)] = 0x0000FFFF;
@@ -63,7 +66,8 @@ void init_gic_cpu() {
 	GICC[GICC_CTLR] = 0x201;
 }
 
-void init_gic() {
+void init_gic()
+{
 	initIRQHandlers();
 	init_gic_distributor();
 	init_gic_cpu();

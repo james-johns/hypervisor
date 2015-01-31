@@ -40,6 +40,7 @@
 #define GICC_DIR            (0x1000/4)
 
 #define GICH_HCR            (0x0)
+#define GICH_VTR            (0x4/4)
 #define GICH_VMCR           (0x8/4)
 #define GICH_MISR           (0x10/4)
 #define GICH_EOISR(n)       n+(0x20/4)

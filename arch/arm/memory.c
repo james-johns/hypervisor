@@ -19,6 +19,14 @@ void memcpy(void *source, void *dest, unsigned int size)
 	}
 }
 
+void memset(void *dest, unsigned char value, unsigned int size)
+{
+	unsigned int i;
+	for (i = 0; i < size; i++) {
+		((unsigned char *)dest)[i] = value;
+	}
+}
+
 void init_mmu()
 {
 	hypPageTable = createPageTable();

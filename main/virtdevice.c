@@ -25,6 +25,7 @@ void registerVirtDeviceHandler(unsigned int address, virtDeviceHandler_t handler
 	printh("Device handler item %d\r\n", orderedListGetItem(virtDevices, 0));
 }
 
+extern signed int currentVMID;
 void callVirtDeviceHandler(unsigned int address, struct cpuRegs_s *regs)
 {
 	struct virtDeviceTuple_s tmp = { .address = address };
@@ -33,6 +34,8 @@ void callVirtDeviceHandler(unsigned int address, struct cpuRegs_s *regs)
 		handler->handler(regs);
 	else {
 		printh("No registered handler for %d %d\r\n", address, handler);
+		printh("Current VMID: %d\r\n", currentVMID);
+		print_regs(regs);
 		while(1);
 	}
 }

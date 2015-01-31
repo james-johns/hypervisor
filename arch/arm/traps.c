@@ -54,10 +54,14 @@ void print_regs(struct cpuRegs_s *regs)
 	print_hex(regs->pc);
 	print_str("\r\nPSR: ");
 	print_hex(regs->cpsr);
+	print_str("\r\nSPSR_svc: ");
+	print_hex(regs->SPSR_svc);
 	print_str("\r\nlr: ");
 	print_hex(regs->lr);
 	print_str("\r\nSP_usr: ");
 	print_hex(regs->SP_usr);
+	print_str("\r\nSP_svc: ");
+	print_hex(regs->SP_svc);
 	print_str("\r\nlr_svc: ");
 	print_hex(regs->lr_svc);
 	print_str("\r\n\r\n");

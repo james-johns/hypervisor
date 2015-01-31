@@ -15,7 +15,7 @@ void mapMemoryToVM(struct guestVM_s *guest, unsigned int baseAddr,
 		unsigned int targetAddr, unsigned int size, unsigned int attrs)
 {
 	printh("Mapping %d to %d (size %d) for VM\r\n", baseAddr, targetAddr, size);
-	mapVirtToPhys(guest->stageOneTable, targetAddr, baseAddr, size, attrs);
+	mapVirtToPhys(guest->vcpu.stageOneTable, targetAddr, baseAddr, size, attrs);
 }
 
 void dummyIRQHandler(struct cpuRegs_s *regs)
@@ -31,7 +31,7 @@ struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int
 	guest->name = name;
 
 //	registerIRQHandler(0x1B, dummyIRQHandler);
-	guest->stageOneTable = createPageTable();
+	guest->vcpu.stageOneTable = createPageTable();
 	mapMemoryToVM(guest, baseAddr, 0x40000000, memorySize, 0x1FF); /* base memory map */
 	mapMemoryToVM(guest, 0x00000000, 0x00000000, 0x10000, 0x1B1);   /* SRAM */
 //	mapMemoryToVM(guest, 0x01c28000, 0x01c28000,  0x1000, 0x1B1);   /* UART0 */
@@ -61,16 +61,25 @@ struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int
 
 //	printPageTable(guest->stageOneTable, 0x0, 1);
 
-	guest->regs.pc = (0x40008000);
-	guest->regs.cpsr = 0x00000013;
-	guest->regs.r0 = 0;
-	guest->regs.r1 = 0x000010bb;
-	guest->regs.r2 = 0x40000000;
-	guest->regs.r3 = 0;
-	guest->vgic.ctlr = 0;
+	memset(&guest->vcpu.regs, 0, sizeof(struct cpuRegs_s));
 
+	guest->vcpu.regs.pc = (0x40008000);
+	guest->vcpu.regs.SP_svc = (0x40000000 + (memorySize-1));
+	guest->vcpu.regs.cpsr = 0x00000013;
+	guest->vcpu.regs.r0 = 0;
+	guest->vcpu.regs.r1 = 0x000010bb;
+	guest->vcpu.regs.r2 = 0x40000000;
+	guest->vcpu.regs.r3 = 0;
+
+	guest->vcpu.vgic.ctlr = 0;
+	guest->vcpu.vgic.lr_lines = (GICH[GICH_VTR] & 0x3F)+1;
+	guest->vcpu.vgic.lr = malloc(sizeof(unsigned int)*(guest->vcpu.vgic.lr_lines));
+	memset(&guest->vcpu.vgic.lr, 0, sizeof(unsigned int)*guest->vcpu.vgic.lr_lines);
+
+	memset(&guest->vcpu.coproc15, 0, sizeof(struct cp15_s));
+	
 	printh("New Guest Regs:\r\n");
-	print_regs(&(guest->regs));
+	print_regs(&(guest->vcpu.regs));
 	return guest;
 }
 
