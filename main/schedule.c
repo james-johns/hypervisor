@@ -1,4 +1,7 @@
-
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <cpu.h>
 #include <vm.h>
@@ -13,6 +16,11 @@ struct guestVM_s *virtualMachines[4];
 signed int allocatedVMs;
 signed int currentVMID;
 
+/**
+ * \fn getCurrentVM
+ *
+ * Return the current scheduled VM state structure
+ */
 struct guestVM_s *getCurrentVM()
 {
 	if (currentVMID < 0)
@@ -20,6 +28,11 @@ struct guestVM_s *getCurrentVM()
 	return virtualMachines[currentVMID];
 }
 
+/**
+ * \fn scheduleVM(struct guestVM_s *guest)
+ *
+ * Add new guestVM to schedule queue.
+ */
 void scheduleVM(struct guestVM_s *guest)
 {
 	printh("Scheduling vm %d %d ", allocatedVMs, guest);
@@ -28,6 +41,11 @@ void scheduleVM(struct guestVM_s *guest)
 	allocatedVMs++;
 }
 
+/**
+ * \fn switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
+ *
+ * Switch current executing VM to nextVM.
+ */
 void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 {
 	struct cpu_s *vcpu = &nextVM->vcpu;
@@ -55,7 +73,12 @@ void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 	asm volatile("dsb \n mcr p15, 0, %0, c8, c7, 0\n"::"r"(0x0));
 }
 
-void saveVMState(struct cpuRegs_s *regs, struct guestVM_s* guest)
+/**
+ * \fn saveVMState(struct cpuRegs_s *regs, struct guestVM_s *guest)
+ *
+ * Store current VM state into current VM storage struct
+ */
+void saveVMState(struct cpuRegs_s *regs, struct guestVM_s *guest)
 {
 	if (currentVMID >= 0) {
 		memcpy((void *)regs, (void *)&guest->vcpu.regs, sizeof(struct cpuRegs_s));
@@ -81,6 +104,11 @@ void saveVMState(struct cpuRegs_s *regs, struct guestVM_s* guest)
 	}
 }
 
+/**
+ * \fn schedule(struct cpuRegs_s *regs)
+ *
+ * Save and switch the current executing VM if appropriate
+ */
 void schedule(struct cpuRegs_s *regs)
 {
 //	printh("Scheduling\r\n");
@@ -95,6 +123,11 @@ void schedule(struct cpuRegs_s *regs)
 	}
 }
 
+/**
+ * \fn init_scheduler
+ *
+ * Initialise scheduler subsystem
+ */
 void init_scheduler()
 {
 	allocatedVMs = 0;

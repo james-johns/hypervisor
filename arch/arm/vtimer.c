@@ -1,4 +1,7 @@
-
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <vtimer.h>
 #include <cpu.h>
@@ -39,6 +42,11 @@ void portIOHandlerWrite(unsigned int hdfar, unsigned int hpfar, unsigned int *sr
 	//		printh("Reading ptr %d = %d\r\n", ptr, *destReg);
 }
 
+/**
+ * \fn vtimerHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *destReg)
+ *
+ * Handle read of virtual timer device
+ */
 void vtimerHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *destReg)
 {
 //	printh("vtimerHandlerRead\r\n");
@@ -73,6 +81,11 @@ void vtimerHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *des
 	}
 }
 
+/**
+ * \fn vtimerHandlerWrite(unsigned int hdfar, unsigned int hpfar, unsigned int *srcReg)
+ *
+ * Handle write to virtual timer device
+ */
 void vtimerHandlerWrite(unsigned int hdfar, unsigned int hpfar, unsigned int *srcReg)
 {
 //	printh("vtimerHandlerWrite\r\n");
@@ -112,6 +125,12 @@ void vtimerHandlerWrite(unsigned int hdfar, unsigned int hpfar, unsigned int *sr
 	}
 }
 
+/**
+ * \fn vtimerHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar, 
+ *                 struct cpuRegs_s *regs)
+ *
+ * Handle virtual timer access
+ */
 void vtimerHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar, 
 		struct cpuRegs_s *regs)
 {
@@ -160,6 +179,11 @@ void vtimerHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar,
 
 void print_regs(struct cpuRegs_s *regs);
 
+/**
+ * \fn vtimerVirtDeviceHandler(struct cpuRegs_s *regs)
+ *
+ * Handle virtual timer device access
+ */
 void vtimerVirtDeviceHandler(struct cpuRegs_s *regs)
 {
 	unsigned int hdfar, hpfar, hsr;

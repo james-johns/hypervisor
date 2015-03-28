@@ -1,4 +1,7 @@
-
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <cpu.h>
 #include <printh.h>
@@ -9,6 +12,11 @@
 
 irqHandler_t handlers[IRQ_COUNT];
 
+/**
+ * \fn registerIRQHandler(unsigned int irq, irqHandler_t handler)
+ *
+ * Register handler to service irq
+ */
 void registerIRQHandler(unsigned int irq, irqHandler_t handler)
 {
 	if (irq >= IRQ_COUNT)
@@ -17,6 +25,12 @@ void registerIRQHandler(unsigned int irq, irqHandler_t handler)
 }
 
 void print_regs(struct cpuRegs_s *regs);
+
+/**
+ * \fn callIRQHandler(unsigned int irq, struct cpuRegs_s *regs)
+ *
+ * Call registered IRQ handler if available
+ */
 void callIRQHandler(unsigned int irq, struct cpuRegs_s *regs)
 {
 	if (irq >= IRQ_COUNT)
@@ -31,6 +45,11 @@ void callIRQHandler(unsigned int irq, struct cpuRegs_s *regs)
 	}
 }
 
+/**
+ * \fn initIRQHandlers
+ *
+ * Initialise IRQ handlers list
+ */
 void initIRQHandlers()
 {
 	int i;

@@ -1,5 +1,7 @@
-
-
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <pageTable.h>
 #include <memory.h>
@@ -29,6 +31,11 @@ void printPageTable(struct pageTable_s *table, unsigned int baseAddr, unsigned i
 	}
 }
 
+/**
+ * \fn createPageTable
+ *
+ * Allocate and initialise a page table structure.
+ */
 struct pageTable_s *createPageTable() 
 {
 	struct pageTable_s *toRet;
@@ -42,6 +49,11 @@ struct pageTable_s *createPageTable()
 	return toRet;
 }
 
+/**
+ * \fn createPageDescriptor(unsigned int phys, unsigned int type, unsigned int attrs)
+ *
+ * Create page descriptor bit pattern from arguments and return as structure.
+ */
 struct pageDescriptor_s createPageDescriptor(unsigned int phys, unsigned int type, unsigned int attrs)
 {
 	struct pageDescriptor_s toRet;
@@ -56,6 +68,12 @@ struct pageDescriptor_s createPageDescriptor(unsigned int phys, unsigned int typ
 	return toRet;
 }
 
+/**
+ * \fn setPageTableEntry(struct pageTable_s *table, struct pageDescriptor_s descriptor,
+ *                     unsigned short offset)
+ *
+ * Set entry in page table at offset to page descirptor
+ */
 void setPageTableEntry(struct pageTable_s *table, 
 		struct pageDescriptor_s descriptor, unsigned short offset)
 {
@@ -65,6 +83,11 @@ void setPageTableEntry(struct pageTable_s *table,
 	table->entry[offset] = descriptor;
 }
 
+/**
+ * \fn getPageTable(struct pageDescriptor_s descriptor)
+ *
+ * Return next level pageTable pointed to by descriptor.
+ */
 struct pageTable_s *getPageTable(struct pageDescriptor_s descriptor)
 {
 	struct pageTable_s *toRet;
@@ -78,6 +101,12 @@ struct pageTable_s *getPageTable(struct pageDescriptor_s descriptor)
 	return toRet;
 }
 
+/**
+ * \fn mapPageTable(unsigned int startLevel, struct pageTable_s *table, 
+ *                struct pageTable_s *nextTable, unsigned int virt)
+ *
+ * Set page table entry to point to next level page table
+ */
 void mapPageTable(unsigned int startLevel, struct pageTable_s *table, 
 		struct pageTable_s *nextTable, unsigned int virt)
 {
@@ -88,6 +117,17 @@ void mapPageTable(unsigned int startLevel, struct pageTable_s *table,
 	setPageTableEntry(table, desc, offset);
 }
 
+/**
+ * \fn mapVirtToPhys(struct pageTable_s *table, unsigned int virt, unsigned int phys,
+ *                unsigned int size, unsigned int attrs)
+ *
+ * Map virtual address to physical address in page table for specified length, 
+ * with specified attrs. Procedure breaks size into appropriate blocks to manage
+ * memory block limits per entry in each level of the page table stricture.
+ *
+ * Assumes all memory from virt address to virt address + size is not mapped in the
+ * page table yet - if the memory is already mapped, this will overwrite the mappings.
+ */
 void mapVirtToPhys(struct pageTable_s *table, unsigned int virt, unsigned int phys,
 		unsigned int size, unsigned int attrs)
 {

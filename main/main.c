@@ -1,4 +1,8 @@
-
+/** 
+ * \file 
+ * \author James Johns
+ *
+ */
 #include <config.h>
 #include <tests.h>
 #include <printh.h>
@@ -16,6 +20,13 @@ void vttyInit();
 
 extern struct guestVM_s *nextScheduledVM;
 
+/**
+ * \fn hyp_main
+ *
+ * Initialises platform via generic calls which must be implemented
+ * by target platform. Includes; irqs, mmu, timer, scheduler and creates
+ * the initial guest VMs
+ */
 void hyp_main()
 {
 	_end = (unsigned int) &_end;

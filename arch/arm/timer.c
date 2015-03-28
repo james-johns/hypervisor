@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <config.h>
 #include <gic.h>
@@ -33,6 +37,11 @@ void macHandler(struct cpuRegs_s *regs)
 	regs->r0 = regs->r0;
 }
 
+/**
+ * \fn init_timer
+ *
+ * Initialise system timer
+ */
 void init_timer()
 {
 	TIMERx_BASE(0)[TIMER_INTRVL] = 0x00100000;
@@ -53,6 +62,11 @@ void init_timer()
 	//	enable_irq(117);
 }
 
+/**
+ * \fn print_timer_value
+ *
+ * Debug routine to print current value of timer
+ */
 void print_timer_value()
 {
 	printh("\r\nTimer value: %d     Status: %d", TIMER2_CUR_INTRVL, TIMER_IRQ_STATUS);
@@ -61,6 +75,11 @@ void print_timer_value()
 extern struct vtimer_s vtimerctrl;
 extern struct vtimerx_s vtimer[4];
 
+/**
+ * \fn timer_interrupt
+ *
+ * Timer interrupt handler
+ */
 void timer_interrupt(struct cpuRegs_s *regs)
 {
 	static unsigned int count = 0;

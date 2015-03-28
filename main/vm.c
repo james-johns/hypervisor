@@ -1,4 +1,7 @@
-
+/**
+ * \file
+ * \author James Johns
+ */
 
 #include <vm.h>
 #include <malloc.h>
@@ -12,7 +15,12 @@
 
 void print_regs(struct cpuRegs_s *regs);
 
-/* contextual wrapper for mapping memory to a VM guest */
+/**
+ * \fn mapMemoryToVM(struct guestVM_s *guest, unsigned int baseAddr, 
+ *		unsigned int targetAddr, unsigned int size, unsigned int attrs)
+ *
+ * Contextual wrapper for mapping memory to a VM guest.
+ */
 void mapMemoryToVM(struct guestVM_s *guest, unsigned int baseAddr, 
 		unsigned int targetAddr, unsigned int size, unsigned int attrs)
 {
@@ -25,8 +33,12 @@ void dummyIRQHandler(struct cpuRegs_s *regs)
 	regs->r0 = regs->r0;
 }
 
-/* baseAddr is the base address of RAM to be assigned to VM. 
- * Kernel must be placed 32KiB into this section of RAM.  */
+/**
+ * \fn createVM(const char *name, unsigned int baseAddr, unsigned int memorySize)
+ * \param[in] baseAddr The base address of RAM to be assigned to VM. 
+ *
+ * Kernel must be placed 32KiB into this section of RAM.
+ */
 struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int memorySize)
 {
 	struct guestVM_s *guest = malloc(sizeof(struct guestVM_s));
