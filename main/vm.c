@@ -90,7 +90,7 @@ struct guestVM_s *createVM(const char *name, unsigned int baseAddr, unsigned int
 	guest->vcpu.regs.r2 = 0x40000000;
 	guest->vcpu.regs.r3 = 0;
 
-	guest->vcpu.vgic.ctlr = 0;
+	guest->vcpu.vgic.ctlr = 1;
 	guest->vcpu.vgic.lr_lines = (GICH[GICH_VTR] & 0x3F)+1;
 	guest->vcpu.vgic.lr = malloc(sizeof(unsigned int)*(guest->vcpu.vgic.lr_lines));
 	memset(&guest->vcpu.vgic.lr, 0, sizeof(unsigned int)*guest->vcpu.vgic.lr_lines);
