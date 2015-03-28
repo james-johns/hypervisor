@@ -3,6 +3,7 @@
  * \author James Johns
  */
 
+#include <types.h>
 #include <cpu.h>
 #include <vm.h>
 #include <schedule.h>
@@ -80,28 +81,27 @@ void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
  */
 void saveVMState(struct cpuRegs_s *regs, struct guestVM_s *guest)
 {
-	if (currentVMID >= 0) {
-		memcpy((void *)regs, (void *)&guest->vcpu.regs, sizeof(struct cpuRegs_s));
-		guest = guest;
-		struct cpu_s *vcpu = &guest->vcpu;
-		saveVGIC(&vcpu->vgic);
-		asm volatile("isb \n mrrc p15, 0, %0, %1, c2":
-			"=r"(vcpu->coproc15.ttbr0_lo), "=r"(vcpu->coproc15.ttbr0_hi):);
-		asm volatile("mrrc p15, 1, %0, %1, c2":
-			"=r"(vcpu->coproc15.ttbr1_lo), "=r"(vcpu->coproc15.ttbr1_hi):);
-		asm volatile("mrc p15, 0, %0, c2, c0, 0" :"=r"(vcpu->coproc15.ttbcr):);
-		asm volatile("mrc p15, 0, %0, c10, c2, 0":"=r"(vcpu->coproc15.mair0):);
-		asm volatile("mrc p15, 0, %0, c10, c2, 1":"=r"(vcpu->coproc15.mair1):);
-		asm volatile("mrc p15, 0, %0, c10, c3, 0":"=r"(vcpu->coproc15.amair0):);
-		asm volatile("mrc p15, 0, %0, c10, c3, 1":"=r"(vcpu->coproc15.amair1):);
-		asm volatile("mrc p15, 0, %0, c3, c0, 0" :"=r"(vcpu->coproc15.dacr):);
-		asm volatile("mrrc p15, 0, %0, %1, c7":
-			"=r"(vcpu->coproc15.par_lo), "=r"(vcpu->coproc15.par_hi):);
+	if (guest == NULL)
+		return;
+	struct cpu_s *vcpu = &guest->vcpu;
+	memcpy((void *)regs, (void *)&vcpu->regs, sizeof(struct cpuRegs_s));
+	saveVGIC(&vcpu->vgic);
 
-		asm volatile("mrc p15, 0, %0, c1, c0, 0":"=r"(vcpu->coproc15.sctlr):);
-		asm volatile("mrc p15, 0, %0, c12, c0, 0":"=r"(vcpu->coproc15.vbar):);
-		
-	}
+	asm volatile("isb \n mrrc p15, 0, %0, %1, c2":
+		"=r"(vcpu->coproc15.ttbr0_lo), "=r"(vcpu->coproc15.ttbr0_hi):);
+	asm volatile("mrrc p15, 1, %0, %1, c2":
+		"=r"(vcpu->coproc15.ttbr1_lo), "=r"(vcpu->coproc15.ttbr1_hi):);
+	asm volatile("mrc p15, 0, %0, c2, c0, 0" :"=r"(vcpu->coproc15.ttbcr):);
+	asm volatile("mrc p15, 0, %0, c10, c2, 0":"=r"(vcpu->coproc15.mair0):);
+	asm volatile("mrc p15, 0, %0, c10, c2, 1":"=r"(vcpu->coproc15.mair1):);
+	asm volatile("mrc p15, 0, %0, c10, c3, 0":"=r"(vcpu->coproc15.amair0):);
+	asm volatile("mrc p15, 0, %0, c10, c3, 1":"=r"(vcpu->coproc15.amair1):);
+	asm volatile("mrc p15, 0, %0, c3, c0, 0" :"=r"(vcpu->coproc15.dacr):);
+	asm volatile("mrrc p15, 0, %0, %1, c7":
+		"=r"(vcpu->coproc15.par_lo), "=r"(vcpu->coproc15.par_hi):);
+	
+	asm volatile("mrc p15, 0, %0, c1, c0, 0":"=r"(vcpu->coproc15.sctlr):);
+	asm volatile("mrc p15, 0, %0, c12, c0, 0":"=r"(vcpu->coproc15.vbar):);
 }
 
 /**
