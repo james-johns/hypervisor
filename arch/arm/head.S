@@ -122,7 +122,6 @@ trap_fiq:
 
 GLOBAL(setGuestTTBR)
 setGuestTTBR:
-	mov r1, #0
 	dsb
 	mcrr p15, 6, r0, r1, c2
 	isb

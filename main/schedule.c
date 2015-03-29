@@ -54,7 +54,7 @@ void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 	setVTCR(0x80003540);// 0x80003540
 	restoreVGIC(&vcpu->vgic);
 	setHCR(getHCR() | 0x01);
-	setGuestTTBR((unsigned int)vcpu->stageOneTable, currentVMID << 16);
+	setGuestTTBR((unsigned int)vcpu->stageOneTable, ((currentVMID + 1) & 0x000000FF) << 16);
 	asm volatile("mcrr p15, 0, %0, %1, c2"::
 		"r"(vcpu->coproc15.ttbr0_lo), "r"(vcpu->coproc15.ttbr0_hi));
 	asm volatile("mcrr p15, 1, %0, %1, c2"::
@@ -70,8 +70,8 @@ void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 
 	asm volatile("mcr p15, 0, %0, c12, c0, 0"::"r"(vcpu->coproc15.vbar));
 	asm volatile("mcr p15, 0, %0, c1, c0, 0"::"r"(vcpu->coproc15.sctlr));
-	asm volatile("mcr p15, 4, %0, c0, c0, 5 \n isb"::"r"(0xC0000000));
-	asm volatile("dsb \n mcr p15, 0, %0, c8, c7, 0\n"::"r"(0x0));
+	asm volatile("mcr p15, 4, %0, c0, c0, 5 \n isb \n dsb"::"r"(0xC0000000));
+//	asm volatile("dsb \n mcr p15, 0, %0, c8, c7, 0\n"::"r"(0x0));
 }
 
 /**
@@ -118,7 +118,7 @@ void schedule(struct cpuRegs_s *regs)
 		currentVMID++;
 		if (currentVMID >= allocatedVMs)
 			currentVMID = 0;
-		switchToVM(virtualMachines[currentVMID], regs);
+		switchToVM(getCurrentVM(), regs);
 //		print_regs(regs);
 	}
 }
