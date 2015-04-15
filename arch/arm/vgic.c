@@ -17,14 +17,32 @@ struct hfarRegs_s {
 
 void printGICHypState();
 
+void saveVGIC(struct vgic_s *vgic)
+{
+	unsigned int i;
+	vgic->ctlr = GICH[GICH_HCR];
+	vgic->apr  = GICH[GICH_APR];
+	vgic->vmcr = GICH[GICH_VMCR];
+	for (i = 0; i < vgic->lr_lines; i++) {
+		vgic->lr[i] = GICH[GICH_LR(i)];
+	}
+}
+
+
 /**
  * \fn setVGIC(struct vgic_s *vgic)
  *
  * Restore VGIC state
  */
-void setVGIC(struct vgic_s *vgic)
+void restoreVGIC(struct vgic_s *vgic)
 {
+	unsigned int i;
 	GICH[GICH_HCR] = vgic->ctlr;
+	GICH[GICH_APR] = vgic->apr;
+	GICH[GICH_VMCR] = vgic->vmcr;
+	for (i = 0; i < vgic->lr_lines; i++) {
+		GICH[GICH_LR(i)] = vgic->lr[i];
+	}
 }
 
 /**
@@ -38,20 +56,26 @@ void vgicHandlerDistRead(struct guestVM_s *guest, unsigned int distOffset,
 //	printh("vgicHandlerDistRead\r\n");
 	switch (distOffset) {
 	default:
-		printh("Read to Distributor reg %d is not implemented\r\n", distOffset);
+		printh("Read from Distributor reg %d is not implemented\r\n", distOffset);
 		while (1);
 		break;
 	case GICD_CTLR * 4:
-		*destReg = guest->vgic.ctlr;
+		*destReg = guest->vcpu.vgic.ctlr;
 		break;
 	case GICD_TYPER * 4:
 		*destReg = 0x00000003;//guest->vgic.typer;
 		break;
+	case GICD_ISENABLER(0)*4 ... GICD_ISENABLER(0x7F)*4:
+		*destReg = guest->vcpu.vgic.enabled[(distOffset & 0x7F) / 4];
+		break;
 	case GICD_IPRIORITYR(0)*4 ... GICD_IPRIORITYR(0x3FF)*4:
-		*destReg = guest->vgic.priority[distOffset&0x3FF];
+		*destReg = guest->vcpu.vgic.priority[distOffset&0x3FF];
 		break;
 	case GICD_ITARGETSR(0)*4 ... GICD_ITARGETSR(0xF8)*4:
-		*destReg = guest->vgic.target[distOffset & 0xFF];
+		*destReg = guest->vcpu.vgic.target[distOffset & 0xFF];
+		break;
+	case 0xC00 ... 0xDFC:
+		// ignore ICFGRn
 		break;
 	}
 }
@@ -71,23 +95,26 @@ void vgicHandlerDistWrite(struct guestVM_s *guest, unsigned int distOffset,
 		while (1);
 		break;
 	case GICD_CTLR:
-		guest->vgic.ctlr = *srcReg;
+		guest->vcpu.vgic.ctlr = *srcReg;
 		break;
 	case GICD_ICENABLER(0)*4 ... GICD_ICENABLER(0x7F)*4:
 //		printh("Disabling %d offset %d\r\n", *srcReg, ((distOffset & 0x7F)/4));
-		guest->vgic.enabled[(distOffset & 0x7F) / 4] &= ~(*srcReg);
+		guest->vcpu.vgic.enabled[(distOffset & 0x7F) / 4] &= ~(*srcReg);
 		break;
 	case GICD_ISENABLER(0)*4 ... GICD_ISENABLER(0x7F)*4:
 //		printh("Enabling %d offset %d\r\n", *srcReg, ((distOffset & 0x7F)/4));
-		guest->vgic.enabled[(distOffset & 0x7F) / 4] |= *srcReg;
+		guest->vcpu.vgic.enabled[(distOffset & 0x7F) / 4] |= *srcReg;
+		GICD[GICD_ISENABLER((distOffset & 0x7F))] = *srcReg;
+//		GICD[GICD_ITARGETSR(irqn / 4)] |= (0x01 << ((irqn % 4) * 8));
+//		GICD[GICD_IPRIORITYR(irqn / 4)] |= (0xa0 << ((irqn % 4) * 8));
 		break;
 	case GICD_IPRIORITYR(0)*4 ... GICD_IPRIORITYR(0x3FF)*4:
 //		printh("Priority(%d) %d\r\n", distOffset&0x3FF, *srcReg);
-		guest->vgic.priority[distOffset&0x3FF] = *srcReg;
+		guest->vcpu.vgic.priority[distOffset&0x3FF] = *srcReg;
 		break;
 	case GICD_ITARGETSR(0)*4 ... GICD_ITARGETSR(0xF8)*4:
 //		printh("ITARGETSR set to %d\r\n", *srcReg);
-		guest->vgic.target[distOffset & 0xFF] = *srcReg;
+		guest->vcpu.vgic.target[distOffset & 0xFF] = *srcReg;
 		break;
 	case GICD_ICFGR(0)*4 ... GICD_ICFGR(0xFC)*4:
 		/* ignore */
@@ -165,18 +192,18 @@ void triggerVIRQ(unsigned int irqNum)
 	unsigned int priority;
 	unsigned int listReg;
 
-	if (guest->vgic.enabled[irqNum/32] & (1 << (irqNum % 32))) {
-		priority = (guest->vgic.priority[irqNum/4] & (irqNum % 4)) >> ((irqNum % 4) * 8);
+	if (guest->vcpu.vgic.enabled[irqNum/32] & (1 << (irqNum % 32))) {
+		priority = (guest->vcpu.vgic.priority[irqNum/4] & (irqNum % 4)) >> ((irqNum % 4) * 8);
 
 		listReg = 0x90000000;               // assume hardware interrupt, state pending
 		listReg |= (priority & 0xFF) << 23;
 		listReg |= irqNum;                  // virtual irq ID
-		listReg |= 56 << 10;            // physical irq ID
+		listReg |= irqNum << 10;            // physical irq ID
 
 //	        printh("Triggering VIRQ %d (%d)\r\n", irqNum, listReg);
 		GICH[GICH_LR(0)] = listReg;
 	} else {
-		printh("Not triggering VIRQ because vgic.enabled[%d] = %d\r\n", irqNum/32, guest->vgic.enabled[irqNum/32]);
+		//printh("Not triggering VIRQ because vgic.enabled[%d] = %d\r\n", irqNum/32, guest->vgic.enabled[irqNum/32]);
 	}
 }
 

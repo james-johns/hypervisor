@@ -10,6 +10,27 @@
 
 #define NULL ((void *)0)
 
+void printPageTable(struct pageTable_s *table, unsigned int baseAddr, unsigned int level)
+{
+	int i = 0;
+	unsigned int offsetAddr = baseAddr;
+	struct pageDescriptor_s desc;
+	for (i = 0; i < LPAE_ENTRIES; i++) {
+		desc = table->entry[i];
+		offsetAddr += ((level == 1) ? 0x40000000 : ((level == 2) ? 0x00100000 : 0x00001000));
+
+		if (!(desc.type & 0x1))
+			continue;
+		printh("%s mapping %d to %d (level %d)\r\n", ((desc.type & 0x2 && level < 3) ? "table" : "   page"),
+			baseAddr + (i * ((level == 1) ? 0x40000000 : ((level == 2) ? 0x00100000 : 0x00001000))),
+			((desc.highAddr << 21) | desc.lowAddr << 12), level);
+		if (desc.type & 0x2 && level < 3) {
+			printPageTable((struct pageTable_s *)((desc.highAddr << 21) | (desc.lowAddr << 12)),
+				offsetAddr, level+1);
+		}
+	}
+}
+
 /**
  * \fn createPageTable
  *

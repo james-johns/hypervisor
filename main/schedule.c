@@ -3,6 +3,7 @@
  * \author James Johns
  */
 
+#include <types.h>
 #include <cpu.h>
 #include <vm.h>
 #include <schedule.h>
@@ -48,24 +49,59 @@ void scheduleVM(struct guestVM_s *guest)
  */
 void switchToVM(struct guestVM_s *nextVM, struct cpuRegs_s *regs)
 {
-	memcpy((void *)&nextVM->regs, (void *)regs, sizeof(struct cpuRegs_s));
-	setVTCR(0x80003540);
-	setGuestTTBR((unsigned int)nextVM->stageOneTable);
+	struct cpu_s *vcpu = &nextVM->vcpu;
+	memcpy((void *)&vcpu->regs, (void *)regs, sizeof(struct cpuRegs_s));
+	setVTCR(0x80003540);// 0x80003540
+	restoreVGIC(&vcpu->vgic);
 	setHCR(getHCR() | 0x01);
-	setVGIC(&nextVM->vgic);
-	asm volatile("mcr p15, 4, %0, c0, c0, 5"::"r"(0xC0000000));
+	setGuestTTBR((unsigned int)vcpu->stageOneTable, ((currentVMID + 1) & 0x000000FF) << 16);
+	asm volatile("mcrr p15, 0, %0, %1, c2"::
+		"r"(vcpu->coproc15.ttbr0_lo), "r"(vcpu->coproc15.ttbr0_hi));
+	asm volatile("mcrr p15, 1, %0, %1, c2"::
+		"r"(vcpu->coproc15.ttbr1_lo), "r"(vcpu->coproc15.ttbr1_hi));
+	asm volatile("mcr p15, 0, %0, c2, c0, 0" ::"r"(vcpu->coproc15.ttbcr));
+	asm volatile("mcr p15, 0, %0, c10, c2, 0"::"r"(vcpu->coproc15.mair0));
+	asm volatile("mcr p15, 0, %0, c10, c2, 1"::"r"(vcpu->coproc15.mair1));
+	asm volatile("mcr p15, 0, %0, c10, c3, 0"::"r"(vcpu->coproc15.amair0));
+	asm volatile("mcr p15, 0, %0, c10, c3, 1"::"r"(vcpu->coproc15.amair1));
+	asm volatile("mcr p15, 0, %0, c3, c0, 0" ::"r"(vcpu->coproc15.dacr));
+	asm volatile("mcrr p15, 0, %0, %1, c7"::
+		"r"(vcpu->coproc15.par_lo), "r"(vcpu->coproc15.par_hi));
+
+	asm volatile("mcr p15, 0, %0, c12, c0, 0"::"r"(vcpu->coproc15.vbar));
+	asm volatile("mcr p15, 0, %0, c1, c0, 0"::"r"(vcpu->coproc15.sctlr));
+	asm volatile("mcr p15, 4, %0, c0, c0, 5 \n isb \n dsb"::"r"(0xC0000000));
+//	asm volatile("dsb \n mcr p15, 0, %0, c8, c7, 0\n"::"r"(0x0));
 }
 
 /**
- * \fn saveVMState(struct cpuRegs_s *regs)
+ * \fn saveVMState(struct cpuRegs_s *regs, struct guestVM_s *guest)
  *
  * Store current VM state into current VM storage struct
  */
-void saveVMState(struct cpuRegs_s *regs)
+void saveVMState(struct cpuRegs_s *regs, struct guestVM_s *guest)
 {
-	if (currentVMID >= 0) {
-		memcpy((void *)regs, (void *)&virtualMachines[currentVMID]->regs, sizeof(struct cpuRegs_s));
-	}
+	if (guest == NULL)
+		return;
+	struct cpu_s *vcpu = &guest->vcpu;
+	memcpy((void *)regs, (void *)&vcpu->regs, sizeof(struct cpuRegs_s));
+	saveVGIC(&vcpu->vgic);
+
+	asm volatile("isb \n mrrc p15, 0, %0, %1, c2":
+		"=r"(vcpu->coproc15.ttbr0_lo), "=r"(vcpu->coproc15.ttbr0_hi):);
+	asm volatile("mrrc p15, 1, %0, %1, c2":
+		"=r"(vcpu->coproc15.ttbr1_lo), "=r"(vcpu->coproc15.ttbr1_hi):);
+	asm volatile("mrc p15, 0, %0, c2, c0, 0" :"=r"(vcpu->coproc15.ttbcr):);
+	asm volatile("mrc p15, 0, %0, c10, c2, 0":"=r"(vcpu->coproc15.mair0):);
+	asm volatile("mrc p15, 0, %0, c10, c2, 1":"=r"(vcpu->coproc15.mair1):);
+	asm volatile("mrc p15, 0, %0, c10, c3, 0":"=r"(vcpu->coproc15.amair0):);
+	asm volatile("mrc p15, 0, %0, c10, c3, 1":"=r"(vcpu->coproc15.amair1):);
+	asm volatile("mrc p15, 0, %0, c3, c0, 0" :"=r"(vcpu->coproc15.dacr):);
+	asm volatile("mrrc p15, 0, %0, %1, c7":
+		"=r"(vcpu->coproc15.par_lo), "=r"(vcpu->coproc15.par_hi):);
+	
+	asm volatile("mrc p15, 0, %0, c1, c0, 0":"=r"(vcpu->coproc15.sctlr):);
+	asm volatile("mrc p15, 0, %0, c12, c0, 0":"=r"(vcpu->coproc15.vbar):);
 }
 
 /**
@@ -75,12 +111,15 @@ void saveVMState(struct cpuRegs_s *regs)
  */
 void schedule(struct cpuRegs_s *regs)
 {
+//	printh("Scheduling\r\n");
 	if (allocatedVMs > 0) {
-		saveVMState(regs);
+//		print_regs(regs);
+		saveVMState(regs, getCurrentVM());
 		currentVMID++;
 		if (currentVMID >= allocatedVMs)
 			currentVMID = 0;
-		switchToVM(virtualMachines[currentVMID], regs);
+		switchToVM(getCurrentVM(), regs);
+//		print_regs(regs);
 	}
 }
 

@@ -8,4 +8,6 @@ arch/arm/gic.o \
 arch/arm/vgic.o \
 arch/arm/vtimer.o \
 arch/arm/memory.o \
-arch/arm/pageTable.o
+arch/arm/pageTable.o \
+arch/arm/pio.o \
+arch/arm/vtty.o

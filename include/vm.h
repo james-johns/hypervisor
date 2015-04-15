@@ -5,13 +5,13 @@
 
 #include <cpu.h>
 #include <vgic.h>
+#include <vtty.h>
 
 struct guestVM_s {
-	struct cpuRegs_s regs;
-	struct pageTable_s *stageOneTable;
-	struct vgic_s vgic;
+	const char *name;
+	struct cpu_s vcpu;
 };
 
-struct guestVM_s *createVM(unsigned int kernelAddr, unsigned int memorySize);
+struct guestVM_s *createVM(const char *name, unsigned int kernelAddr, unsigned int memorySize);
 
 #endif

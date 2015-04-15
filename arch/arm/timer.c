@@ -31,6 +31,12 @@ void timer_interrupt(struct cpuRegs_s *regs);
 
 void vtimerVirtDeviceHandler(struct cpuRegs_s *regs);
 
+void macHandler(struct cpuRegs_s *regs)
+{
+	triggerVIRQ(117);
+	regs->r0 = regs->r0;
+}
+
 /**
  * \fn init_timer
  *
@@ -38,20 +44,22 @@ void vtimerVirtDeviceHandler(struct cpuRegs_s *regs);
  */
 void init_timer()
 {
-	TIMERx_BASE(0)[TIMER_INTRVL] = 0x00400000;
+	TIMERx_BASE(0)[TIMER_INTRVL] = 0x00100000;
 	TIMERx_BASE(0)[TIMER_CTRL] = 0x07;
-	TIMERx_BASE(1)[TIMER_INTRVL] = 0x00400000;
+	TIMERx_BASE(1)[TIMER_INTRVL] = 0x00100000;
 	TIMERx_BASE(1)[TIMER_CTRL] = 0x07;
-	TIMERx_BASE(2)[TIMER_INTRVL] = 0x00400000;
+	TIMERx_BASE(2)[TIMER_INTRVL] = 0x00100000;
 	TIMERx_BASE(2)[TIMER_CTRL] = 0x07;
 
 	TIMER_IRQ_EN = 0x04; // only interrupt on timer 2
 
 	registerVirtDeviceHandler((((unsigned int)TIMER_BASE) & 0xFFFFF000), vtimerVirtDeviceHandler);
 	registerIRQHandler(56, timer_interrupt);
+	registerIRQHandler(117, macHandler);
 //	enable_irq(54);
 //	enable_irq(55);
 	enable_irq(56);
+	//	enable_irq(117);
 }
 
 /**
@@ -79,13 +87,16 @@ void timer_interrupt(struct cpuRegs_s *regs)
 	TIMER_IRQ_STATUS |= 0x04;
 	TIMER_IRQ_EN = 0x04;
 	TIMER2_CTRL |= 0x01;
-//	print_str("Tick\r\n");
+//	printh("Tick %d\r\n", count);
 
 	triggerVIRQ(54 + (count % 2));
 	vtimerctrl.status |= 0x07;
 	for (i = 0; i < 4; i++) {
 		vtimer[i].curval = TIMERx_BASE(i)[TIMER_CURVL];
 	}
-	schedule(regs);
+	if (count > 5) {
+		schedule(regs);
+		count = 0;
+	}
 	count++;
 }

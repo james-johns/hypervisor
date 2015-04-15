@@ -25,6 +25,23 @@ struct vtimerx_s vtimer[4];
 
 struct vtimer_s vtimerctrl;
 
+void portIOHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *destReg)
+{
+	unsigned int ptr = (hpfar << 8) | (hdfar & 0xFFF);
+	*destReg = *(unsigned int *)ptr;
+	//		printh("Reading ptr %d = %d\r\n", ptr, *destReg);
+}
+
+void portIOHandlerWrite(unsigned int hdfar, unsigned int hpfar, unsigned int *srcReg)
+{
+	unsigned int ptr = (hpfar << 8) | (hdfar & 0xFFF);
+	if ((hdfar & 0xFFF) == 0xA18)
+		*(unsigned int *)ptr = 0x0;
+	else
+		*(unsigned int *)ptr = *srcReg;
+	//		printh("Reading ptr %d = %d\r\n", ptr, *destReg);
+}
+
 /**
  * \fn vtimerHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *destReg)
  *
@@ -33,40 +50,34 @@ struct vtimer_s vtimerctrl;
 void vtimerHandlerRead(unsigned int hdfar, unsigned int hpfar, unsigned int *destReg)
 {
 //	printh("vtimerHandlerRead\r\n");
+	hpfar = hpfar;
 	unsigned int timer = hdfar & 0x70;
 	unsigned int offset = hdfar & 0x0F;
-	if ((hdfar & 0xF00) == 0xC00) {
-	  //		printh("Reading timer\r\n");
-		if (timer == 0) {
-			switch (offset & 0x0F) {
-			case 0x4:
+	if (timer == 0) {
+		switch (offset & 0x0F) {
+		case 0x4:
 //			printh("TIMER_STATUS %d\r\n", vtimerctrl.status);
-				*destReg = vtimerctrl.status;
-				break;
-			default:
-				*destReg = 0;
-				break;
-			}
-		} else {
-			switch (offset & 0x0F) {
-			case TIMER_CTRL:
-//			printh("TIMER_CTRL %d\r\n", timer);
-				*destReg = vtimer[timer].ctrl;
-				break;
-			case TIMER_INTRVL:
-//			printh("TIMER_INTRVL %d\r\n", timer);
-				*destReg = vtimer[timer].intrvl;
-				break;
-			case TIMER_CURVL:
-//			printh("TIMER_CURVL %d\r\n", timer);
-				*destReg = vtimer[timer].curval;
-				break;
-			}
+			*destReg = vtimerctrl.status;
+			break;
+		default:
+			*destReg = 0;
+			break;
 		}
 	} else {
-		unsigned int ptr = (hpfar << 8) | (hdfar & 0xFFF);
-		*destReg = *(unsigned int *)ptr;
-		//		printh("Reading ptr %d = %d\r\n", ptr, *destReg);
+		switch (offset & 0x0F) {
+		case TIMER_CTRL:
+//			printh("TIMER_CTRL %d\r\n", timer);
+			*destReg = vtimer[timer].ctrl;
+			break;
+		case TIMER_INTRVL:
+//			printh("TIMER_INTRVL %d\r\n", timer);
+			*destReg = vtimer[timer].intrvl;
+			break;
+		case TIMER_CURVL:
+//			printh("TIMER_CURVL %d\r\n", timer);
+			*destReg = vtimer[timer].curval;
+			break;
+		}
 	}
 }
 
@@ -145,10 +156,20 @@ void vtimerHandler(unsigned int hsr, unsigned int hpfar, unsigned int hdfar,
 
 		if (iss & (1 << 6)) {
 			/* write */
-			vtimerHandlerWrite(hdfar, hpfar, ptrToReg);
+			if ((hdfar & 0xF00) == 0xC00)
+				vtimerHandlerWrite(hdfar, hpfar, ptrToReg);
+			else if ((hdfar & 0xF00) == 0x800)
+				portIOHandlerWrite(hdfar, hpfar, ptrToReg);
+//			else
+//				printh("Unhandled access at %d\r\n", (hpfar << 8) | (hdfar & 0xFFF));
 		} else {
 			/* read */
-			vtimerHandlerRead(hdfar, hpfar, ptrToReg);
+			if ((hdfar & 0xF00) == 0xC00)
+				vtimerHandlerRead(hdfar, hpfar, ptrToReg);
+			else if ((hdfar & 0xF00) == 0x800)
+				portIOHandlerRead(hdfar, hpfar, ptrToReg);
+//			else
+//				printh("Unhandled access at %d\r\n", (hpfar << 8) | (hdfar & 0xFFF));
 		}
 	} else {
 		printh("Fault does not hold a valid Instruction Syndrome, ignoring and bailing out\r\n");

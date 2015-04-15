@@ -122,8 +122,9 @@ trap_fiq:
 
 GLOBAL(setGuestTTBR)
 setGuestTTBR:
-	mov r1, #0
+	dsb
 	mcrr p15, 6, r0, r1, c2
+	isb
 	mov pc, lr
 GLOBAL(setVTCR)
 setVTCR:
@@ -144,7 +145,9 @@ getHCR:
 
 GLOBAL(setHTTBR)
 setHTTBR:
+	isb
 	mcrr p15, 4, r0, r1, c2
+	dsb
 	mov pc, lr
 GLOBAL(setMAIR0VAL)
 setMAIR0VAL:

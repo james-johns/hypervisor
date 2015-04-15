@@ -15,6 +15,8 @@
 
 void init_irqs();
 void init_timer();
+void init_pio();
+void vttyInit();
 
 extern struct guestVM_s *nextScheduledVM;
 
@@ -36,18 +38,22 @@ void hyp_main()
 	init_irqs();
 	init_scheduler();
 	init_timer();
+	init_pio();
 
 	init_mmu();
 
-	struct guestVM_s *guest = createVM(0x48000000, 0x20000000);
+	struct guestVM_s *guest    = createVM("ONE", 0x48000000, 0x20000000);
+	struct guestVM_s *guestTwo = createVM("TWO", 0x68000000, 0x20000000);
 
 	printh("Created guest (%d)\r\n", guest);
+	printh("Created guest (%d)\r\n", guestTwo);
 
 	test_hypervisor();
 
 	printh("Running guest\r\n");
 
 	scheduleVM(guest);
+	scheduleVM(guestTwo);
 
 	enableIRQS();
 

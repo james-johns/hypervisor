@@ -6,6 +6,7 @@
 #include <cpu.h>
 #include <printh.h>
 #include <irq.h>
+#include <vgic.h>
 
 #define NULL ((void *)0)
 
@@ -23,6 +24,8 @@ void registerIRQHandler(unsigned int irq, irqHandler_t handler)
 	handlers[irq] = handler;
 }
 
+void print_regs(struct cpuRegs_s *regs);
+
 /**
  * \fn callIRQHandler(unsigned int irq, struct cpuRegs_s *regs)
  *
@@ -32,10 +35,13 @@ void callIRQHandler(unsigned int irq, struct cpuRegs_s *regs)
 {
 	if (irq >= IRQ_COUNT)
 		return;
+//	print_regs(regs);
 	if (handlers[irq] != NULL) {
 		handlers[irq](regs);
 	} else {
 		printh("Unhandled Interrupt %d\r\n", irq);
+//		while(1);		
+		triggerVIRQ(irq);
 	}
 }
 
